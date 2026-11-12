@@ -251,7 +251,7 @@ table.pit thead th{background:var(--coral);color:#fff}
 .home{font-size:14px;text-decoration:none}
 @media (max-width:720px){.side{grid-template-columns:minmax(0,1fr)}}
 </style>
-</head><body>
+<style>td,th,#coachBody p,#coachBody li{overflow-wrap:anywhere}#coachBody{min-width:0}</style></head><body>
 <nav class="bar" aria-label="章節"><div class="in">
   <a class="home" href="index.html">目錄</a><a href="#goals">目標</a><a href="#learn">觀念</a><a href="#follow">跟著做</a><a href="#pit">常見錯誤</a><a href="#practice">練習</a><a href="#sum">重點</a><a href="#coach">教練</a>
   <span class="prog" id="prog">完成 0</span>
@@ -360,7 +360,7 @@ sumOf { }  maxByOrNull { }  sortedBy { }</code></pre></article></div>
 <p class="lock">🔒 教練解答（需要密碼）。解開後同一個分頁的其他堂也會自動解開，關閉分頁就會鎖回去。</p>
 <form id="coachForm"><input type="password" id="coachPw" placeholder="輸入教練密碼" autocomplete="current-password" aria-label="教練密碼"><button type="submit">解鎖</button><span class="msg" id="coachMsg"></span></form>
 <div class="body" id="coachBody" hidden></div>
-<script type="application/octet-stream" id="coachData">QEDKIsZRfcsQjyh4LtJ28g==.5n56F2QR3PW7NF25.S8+wo97zsxXmvREKSvUVpPjAPkcWVeYSwXKrxcYqUUHctjCsg6Tq0m5I0l2ZiZJiR2SOx9scLrim127uhNJbD5wTq6CcaD6Aff99psXdGcHAL6XtBqNHrI0xgMMzFSedLdN+4RwLgXukghb8Y1JUC0WOXr1GgG9On1Kj9jcf3b4lsoqf0fKtrlaS90ereaV6YwYLNio0SmR62MNSkNMyEW7q73yMoHt5GzAgWUavvtI8IvQyqW/zZe2oEoTAjeJcrM6nXNUhmKvEy6AH8qHGYpy3IGsvXhWK/5oD1XEfvKjPv3YzaydfmDEIM6s3LralMiju6sesVF9IHSGnPLFsJzT7r4jIQZKaJ6FK6mdaiCwyJsEHRBK2bqaXjXFsWYzivFZJf5U7Kt3bSBgy/RM1PBKeMVOn9ZQdU1QxalMqXY52GQgAEfoUft9ymJdRWRxP/I+qg9S4KxhBJ4nOz70CO0TZ6Kt3aNFvW8o9Xdm0Iuy5MOWli2Eac2sOL6yPHOWSueK1WfkFhkUiaPAUOjXQpWUOVa76JeaXEwnKFX2T72BmAq3uSN2yqlom+hgV9UD0V8W+aijqW/ayZqxG5dujw2vUcgda+eXXpLeoX3vKMkOzxjISt6M9xGfyio+lAljJK39hK2yHQT2S5WYSgNgoYK4HNThZQ2lWzpv8G77JR8oEWJax2j0frrbDn0cuzg22p0uOhiyoRAtEM8E/OHcrTM1XvLFg3UkcXoG2gt8CO8j9uuy6j3LZ1ZenSm8yFeGW8FUj5vG7XniG+MeaA1VaCqlY5WhYuGcyS3j+P8B+lCprpw8JmVXOmtkETJj5c4i/J7QH/5RQRJFGPCjpcKWrQ6iPXgeWyJVwpL+elbQzLK/yleGokHQsndO211mnOGQWBLnDaotaGnw=</script>
+<script type="application/octet-stream" id="coachData">n2d+H2ntRn+DEFc2fioVWg==.ITnHtX5kyDHWAafX.uV197stIyCcBceTAd7BL8YclyTPsPiBO/klrSibFg+AgKDU3mL2YCmaPwyJo7/Ik7QxZDZWgN1ge2cRU3rJH6+DLZWmqhL7Wa72/bP9JhCMvy0lcu9GhHti8QjEJ10qN+gR7Z8pZpaxxjfGCq8pUxrBPHz/T3WQb6nq/7yIrtNhP8giq5cvhziY2Z7e36U9pUOHB3QgG4LukMAOnqABNVSMWD4HkcMQOfG2DB7STA0MRgwoK3nLJhdNPnF6WFsmXQPWq54gFdLoEVJ7U4KqWM4cFMPqNuQeTQ/JRYBlnuBn3UzfJoLfcL0pJnsMZpjqIhyvKN00ahL7SMOCHKHd7ScVUTqFFDd5LC/Liml6gqVQszZOGUyd7POZKpwRSbATuR/VMi5DgkabBfYC5NWHD5xt/Xd3KrV5l4JEuLoX4x6pnASNThyCdwByOV2moWeLJi11hufsUPdGCP8WqJN1MxattaCWjiqpfOKC4SEzv1d9yBIw0Zb0VT58k3rJYSbFm/Ou+yzABhGcJ6GZneIzN1OzqkA9vaL+JN2ekEWB4K+oormgg5OratZs7cWZE0qxukQnpe3w6/XVPAkSd8YLKY1Ro1sjolOBqSkpKQRkdZ2aPSTfWrnvPIxjHb00itK4ioTpUJ76l2w01nucH3jbLm/AxbV4qt9sZFIglHG+t6QMfz5dfifUHj8vc9DoQhnwhqirMtEQHSBVvnE3nbCsXBLYmERnsRIoXiYMlGIGnZwtzKLUhsBuXxPMI35f8CG9YQw39ZPQAisivN7mPgUHtp75DKoRk36D10kOiqw9L2zrGaMwOZIhpycs3UT2e6KdSPRmPko+W8V6zLtObV5bwO1B8obH8I2Yv5JfMMDNwMvifwicQmUFaJEyt9dIInY4PInUjUtc2nBo=</script>
 </div>
 </section>
 

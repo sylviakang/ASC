@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Android Compose 入門 M1</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a bright "training camp" handout. Colour-coded stations (concepts, drills, checklist, homework),
+   Kotlin always violet, C# always sky blue, one energetic coral for progress. */
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --ink:#1B2233; --muted:#5A6478; --line:#DCE3EE;
+  --dart:#00A396; --dart-soft:#DDF5F2;
+  --kotlin:#7F52FF; --kotlin-soft:#EEE8FF;
+  --coral:#FF6A47; --coral-soft:#FFE6DF;
+  --sun:#FFB800; --sun-soft:#FFF3D1;
+  --sky:#2F8CEB; --sky-soft:#E0EEFD;
+  --pink:#E8458B; --pink-soft:#FCE3EE;
+  --code-bg:#1E2433; --code-ink:#E7ECF5; --c-com:#8A96AD; --c-str:#9BE38F; --c-kw:#FF9EC4; --c-num:#FFD36B; --c-type:#7FD8FF;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:8px 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.25}
+p{margin:0}
+code,pre{font-family:var(--f-mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+/* nav */
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px))}
+nav.bar .in{max-width:1040px;margin:0 auto;display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none}
+nav.bar a{flex:none;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+nav.bar a:hover{border-color:var(--ink)}
+nav.bar .prog{margin-left:auto;flex:none;font-size:14px;font-weight:700;color:var(--coral);font-variant-numeric:tabular-nums;padding-left:8px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;padding-block:40px 28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--coral)}
+.eyebrow b{background:var(--coral);color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:.04em}
+.hero h1{font-size:clamp(34px,6vw,56px);margin-top:10px}
+.hero h1 .d{color:var(--kotlin)}
+.hero .lead{margin-top:14px;color:var(--muted);max-width:34em}
+.swap{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;min-width:0}
+.swap .ln{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:14px;padding:10px 12px;border-radius:12px;overflow-x:auto}
+.swap .k{background:var(--kotlin-soft);color:var(--kotlin)}
+.swap .dd{background:var(--dart-soft);color:var(--dart)}
+.tag{flex:none;font-family:var(--f-body);font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px}
+.k .tag{background:var(--kotlin)} .dd .tag{background:var(--dart)}
+.swap .sk{background:var(--sky-soft);color:var(--sky)} .sk .tag{background:var(--sky)}
+.swap .co{background:var(--coral-soft);color:var(--coral)} .co .tag{background:var(--coral)}
+.swap .mid{justify-self:center;font-size:22px;color:var(--sun);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+/* timeline */
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.timeline h2{font-size:20px}
+.tl{display:flex;margin-top:14px;border-radius:12px;overflow:hidden;min-height:64px}
+.tl div{padding:10px 12px;color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tl b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.tl small{font-size:12px;opacity:.95;font-variant-numeric:tabular-nums}
+.tl .t1{flex:10;background:var(--sky)} .tl .t2{flex:30;background:var(--kotlin)} .tl .t3{flex:60;background:var(--dart)} .tl .t4{flex:20;background:var(--coral)}
+.tl-note{margin-top:10px;font-size:14px;color:var(--muted)}
+
+section{margin-top:56px;scroll-margin-top:72px}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sh h2{font-size:clamp(26px,4vw,34px)}
+.sh .pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 12px}
+.sh p{flex-basis:100%;color:var(--muted)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;counter-reset:s}
+.steps li{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 52px;position:relative;min-width:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--sky);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+.steps{padding:0;margin:0}
+.ic{background:var(--sky-soft);color:var(--sky);padding:1px 6px;border-radius:6px;font-size:.9em}
+
+/* code */
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px 18px;margin:0;overflow-x:auto;font-size:13.5px;line-height:1.65;tab-size:2}
+.tk-c{color:var(--c-com);font-style:italic}
+.sig .tk-k{color:var(--pink)} .sig .tk-t{color:var(--sky);font-weight:600} .sig .tk-n{color:var(--coral)} .sig .tk-s{color:var(--dart)} .tk-s{color:var(--c-str)} .tk-k{color:var(--c-kw)} .tk-n{color:var(--c-num)} .tk-t{color:var(--c-type)}
+
+/* comparison */
+.tbl{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+thead th{font-family:var(--f-display);font-weight:400;font-size:17px;text-align:left;padding:12px 14px;color:#fff}
+thead th:first-child{background:var(--ink);color:var(--bg)}
+thead .kh{background:var(--kotlin)} thead .ch{background:var(--sky)}
+tbody th{text-align:left;font-weight:500;padding:9px 14px;white-space:nowrap}
+tbody td{padding:9px 14px}
+tbody tr+tr th,tbody tr+tr td{border-top:1px solid var(--line)}
+td.ct code{color:var(--sky)} td.kt code{color:var(--kotlin);font-weight:600}
+td code{font-size:13.5px}
+tr.hot{background:var(--sun-soft)}
+.star{color:var(--sun);margin-left:6px}
+.legend{margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{background:var(--sun-soft);padding:1px 8px;border-radius:6px;color:var(--ink)}
+
+/* concepts */
+.concepts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.concept{background:var(--surface);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;border-top:6px solid var(--cc);min-width:0}
+.concept header{display:flex;gap:10px;align-items:center}
+.cnum{width:32px;height:32px;border-radius:10px;background:var(--cs);color:var(--cc);font-weight:700;display:grid;place-items:center;flex:none}
+.concept h3{font-size:21px}
+.concept p{color:var(--muted);font-size:15px}
+.c0{--cc:var(--sky);--cs:var(--sky-soft)} .c1{--cc:var(--coral);--cs:var(--coral-soft)} .c2{--cc:var(--dart);--cs:var(--dart-soft)}
+.c3{--cc:var(--sun);--cs:var(--sun-soft)} .c4{--cc:var(--kotlin);--cs:var(--kotlin-soft)} .c5{--cc:var(--pink);--cs:var(--pink-soft)}
+
+/* exercises */
+.rule{background:var(--coral-soft);border-radius:14px;padding:12px 16px;font-size:15px;margin-bottom:16px}
+.rule b{color:var(--coral)}
+.exs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ex{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .2s,background .2s}
+.ex.is-done{border-color:var(--dart);background:linear-gradient(var(--dart-soft),var(--surface) 70%)}
+.ex-top{display:flex;gap:12px;align-items:center}
+.exn{font-family:var(--f-display);font-size:28px;color:var(--coral);line-height:1;font-variant-numeric:tabular-nums}
+.ex-title{flex:1;min-width:0}
+.ex h3{font-size:19px}
+.use{font-size:12.5px;color:var(--muted)}
+.lv{display:flex;gap:3px;flex:none}
+.lv i{width:10px;height:10px;border-radius:3px;background:var(--line)}
+.lv i.on{background:var(--sun)}
+pre.sig{margin:0;background:var(--kotlin-soft);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:13px;overflow-x:auto}
+.ex p{font-size:15px}
+.io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.io>div:not(.arrow){background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.io pre{margin:2px 0 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.io pre.out{color:var(--dart);font-weight:600}
+.io-l{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.arrow{align-self:center;color:var(--coral);font-weight:700}
+.done{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;cursor:pointer;margin-top:auto;padding-top:4px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--dart);flex:none}
+.data{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:center}
+.data p{font-size:15px;color:var(--muted)}
+.tip{margin-top:14px;font-size:15px;background:var(--sun-soft);border-radius:12px;padding:10px 14px}
+
+/* checklist */
+.checks{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:15px;height:100%}
+.checks input{margin-top:4px}
+.checks input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dart)}
+
+/* homework */
+.hws{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hw{background:var(--surface);border-radius:16px;padding:16px;border:2px dashed var(--kotlin);display:flex;flex-direction:column;gap:10px;min-width:0}
+.hwn{align-self:flex-start;font-size:12.5px;font-weight:700;background:var(--kotlin);color:#fff;border-radius:999px;padding:2px 10px}
+.hw p{font-size:14.5px}
+.hio{color:var(--muted)} .hio b{color:var(--ink);font-weight:700;margin-right:4px} .hio code{color:var(--kotlin);font-size:13px}
+
+/* skeleton cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.kcard{background:var(--surface);border:2px solid var(--sun);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.kcard h3{font-size:18px}
+.kcard pre.code{font-size:12.5px;padding:12px 14px}
+
+footer{margin-top:56px;font-size:13px;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .hero,.concepts,.exs,.checks,.hws,.data,.cards{grid-template-columns:minmax(0,1fr)}
+  .tl{flex-wrap:wrap} .tl div{flex-basis:50%!important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.exs.one{grid-template-columns:minmax(0,1fr)}
+.pts{flex:none;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-soft);border-radius:999px;padding:2px 10px;max-width:45%;text-align:center}
+.see{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14.5px}
+.see b{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-right:6px}
+.ex pre.code{font-size:13px}
+.see code,.ex p code,.steps code,.tl-note code,.note code,.tip code{overflow-wrap:anywhere}
+.file{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-bottom:-4px}
+.note{margin-top:14px;font-size:15px;background:var(--sky-soft);border-radius:12px;padding:10px 14px}
+.scorebar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.scorebar span{font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.scorebar span b{color:var(--coral)}
+.tl .t5{background:var(--pink)}
+table.plain{min-width:520px}
+table.plain thead th{background:var(--ink);color:var(--bg)}
+
+.sheet{display:grid;gap:14px}
+.sgrp{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.sgrp h3{font-size:18px;display:flex;justify-content:space-between;gap:8px}
+.sgrp h3 small{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.sgrp ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.sgrp label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+.sgrp label b{margin-left:auto;flex:none;color:var(--coral);font-variant-numeric:tabular-nums}
+.sgrp input{margin-top:3px}
+.total{position:sticky;bottom:12px;margin-top:16px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:18px;font-family:var(--f-display)}
+.total b{font-size:26px;color:var(--sun);font-variant-numeric:tabular-nums}
+.total button{font:inherit;font-size:14px;background:transparent;color:var(--bg);border:1px solid var(--bg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.spec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.spec h3{font-size:19px}
+.spec ol,.spec ul{margin:0;padding-left:22px;display:grid;gap:4px;font-size:15px}
+.chg{background:var(--sun-soft);border-radius:14px;padding:12px 16px}
+.chg ol{margin:6px 0 0;padding-left:22px;display:grid;gap:4px}
+
+.goals{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.goals li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 40px;position:relative;font-size:15.5px}
+.goals li::before{content:"✓";position:absolute;left:14px;top:9px;color:var(--dart);font-weight:700}
+.doc{display:grid;gap:18px}
+.dsec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.dsec h3{font-size:21px;display:flex;gap:10px;align-items:center}
+.dsec h3 .dn{flex:none;width:30px;height:30px;border-radius:9px;background:var(--kotlin-soft);color:var(--kotlin);display:grid;place-items:center;font-size:15px;font-family:var(--f-body);font-weight:700}
+.dsec p,.dsec li{font-size:15.5px}
+.dsec ul,.dsec ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.dsec code:not(pre code),.ex p code,.goals code,.call code,td code{background:var(--bg);border-radius:5px;padding:0 5px;font-size:.92em;overflow-wrap:anywhere}
+.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.side .lab{font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+.side .cs .lab{color:var(--sky)} .side .kt .lab{color:var(--kotlin)}
+.call{border-radius:14px;padding:12px 16px;font-size:15px;display:grid;gap:6px}
+.call b.t{font-size:13px;letter-spacing:.06em}
+.call.warn{background:var(--coral-soft)} .call.warn b.t{color:var(--coral)}
+.call.tip{background:var(--sun-soft)} .call.tip b.t{color:var(--ink)}
+.call.note{background:var(--sky-soft)} .call.note b.t{color:var(--sky)}
+.out{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;white-space:pre-wrap}
+.out::before{content:"執行結果";display:block;font-family:var(--f-body);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+table.pit{min-width:560px}
+table.pit thead th{background:var(--coral);color:#fff}
+.coach{background:var(--surface);border:2px dashed var(--kotlin);border-radius:18px;padding:18px 20px}
+.coach form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.coach input[type=password]{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.coach button{font:inherit;font-weight:700;padding:8px 18px;border-radius:999px;border:0;background:var(--kotlin);color:#fff;cursor:pointer}
+.coach .msg{font-size:14px;color:var(--coral)}
+.coach .body{display:grid;gap:14px}
+.coach .body h3{font-size:19px}
+.coach .lock{font-size:14px;color:var(--muted);margin-bottom:10px}
+.coach .bar2{display:flex;justify-content:flex-end}
+.coach .bar2 button{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500;font-size:13px;padding:4px 12px}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:40px;flex-wrap:wrap}
+.pager a{flex:1 1 200px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);font-size:15px}
+.pager a small{display:block;color:var(--muted);font-size:12px}
+.pager a.nx{text-align:right}
+.home{font-size:14px;text-decoration:none}
+@media (max-width:720px){.side{grid-template-columns:minmax(0,1fr)}}
+</style>
+<style>td,th,#coachBody p,#coachBody li{overflow-wrap:anywhere}#coachBody{min-width:0}</style></head><body>
+<nav class="bar" aria-label="章節"><div class="in">
+  <a class="home" href="index.html">目錄</a><a href="#rules">規則</a><a href="#spec">題目</a><a href="#skel">骨架卡</a><a href="#sheet">評分</a><a href="#coach">教練</a>
+  <span class="prog" id="prog">完成 0</span>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <div>
+    <span class="eyebrow"><b>模擬賽一</b>Android Compose 入門</span>
+    <h1>模擬賽一：<span class="d">看骨架卡</span></h1>
+    <p class="lead">第一次完整做出 GyroQuiz。可以看自己的重點整理和下方骨架卡，不看講義的完整程式。目標是 150 分鐘內交出一個能玩的 APK，並熟悉做事的順序。</p>
+  </div>
+  <div class="swap" aria-label="今天學會"><div class="ln k"><span class="tag">時間</span><span>150 分鐘（3 堂）</span></div><div class="ln sk"><span class="tag">可看</span><span>重點整理、骨架卡</span></div><div class="ln co"><span class="tag">目標</span><span>能玩的 APK</span></div></div>
+</header>
+
+<div class="timeline">
+  <h2>這堂的 150 分鐘</h2>
+  <div class="tl"><div class="t1" style="flex:45"><b>骨架 1–2</b><small>0–45 分</small></div><div class="t2" style="flex:45"><b>骨架 3–4</b><small>45–90 分</small></div><div class="t3" style="flex:55"><b>骨架 5–6</b><small>90–145 分</small></div><div class="t4" style="flex:5"><b>交件</b><small>145–150 分</small></div></div>
+  <p class="tl-note">另外安排一堂互評與檢討（評分表）。</p>
+</div>
+
+<section id="rules">
+  <div class="sh"><h2>比賽規則</h2><span class="pill" style="background:var(--sun-soft);color:var(--ink)">先讀完</span>
+  <p></p></div>
+  <div class="doc"><article class="dsec"><h3><span class="dn">1</span>規則</h3><ul><li>時間 150 分鐘，連上 3 堂。</li><li>可以看：自己的筆記、各堂「重點整理」卡片、本頁骨架卡。</li><li>不可以看：講義的完整程式碼、教練解答、網路。</li><li>可以舉手問教練，每次問題教練只給提示不給程式。</li><li>每完成一張骨架卡就 Run 一次並備份（複製專案資料夾）。</li></ul></article></div>
+</section><section id="spec">
+  <div class="sh"><h2>題目：GyroQuiz</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">題本摘要</span>
+  <p>這是講義整理的題本重點，正式比賽以當天題本為準。</p></div>
+  <div class="doc"><article class="dsec"><h3><span class="dn">1</span>首頁</h3><ul><li>Logo、標題「Gyro Quiz」、「新遊戲」「遊玩紀錄」兩個按鈕，分別導到答題頁、遊玩紀錄頁。</li></ul></article><article class="dsec"><h3><span class="dn">2</span>答題頁</h3><ul><li>上方：返回按鈕、目前題號/全部題數、答題經過時間 mm:ss；進度條；題目；4 個選項。</li><li>從 assets/Questions.json 隨機抽 10 題不重複。選項 4 色不同，且與上一題同位置不同色。</li><li>返回（按鈕或返回鍵）跳出確認退出 Dialog，退出不保存。進背景時間暫停。</li><li>游標一開始在 4 個選項的中心；依陀螺儀傾斜移動，不超出選項區；雙擊校正回中心。</li><li>游標停在選項上顯示圓形進度，3 秒選擇；移到其他選項重新計算。</li><li>答錯：Toast「選擇錯誤」、紅框、紅色進度 100→0% 鎖定 5 秒（游標可動）。答對：綠框 2 秒後下一題；最後一題後進結算。</li></ul></article><article class="dsec"><h3><span class="dn">3</span>結算頁</h3><ul><li>返回、答對題數、錯誤題數（同題只算一次）、答題時長 12m 11s、結束日期時間 2026.06.26 05:45 PM、「再玩一次」「回首頁」。結果存入 SQLite。</li></ul></article><article class="dsec"><h3><span class="dn">4</span>遊玩紀錄頁</h3><ul><li>返回、標題、從 SQLite 讀出的列表（答對/錯誤、時長、結束時間），新到舊。</li></ul></article><article class="dsec"><h3><span class="dn">5</span>交件</h3><ul><li>App 名稱 QXX、Package name tw.mad08.gyroquizXX（XX 為選手編號），匯出 APK。</li></ul></article></div>
+</section><section id="skel">
+  <div class="sh"><h2>骨架卡</h2><span class="pill" style="background:var(--coral-soft);color:var(--coral)">依序完成</span>
+  <p>每張卡是一個可以 Run 的階段。卡住超過 10 分鐘就先跳下一張，最後再回來。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>骨架 1：專案與換頁（約 20 分）</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>New Project、Manifest 直向、放 logo.png 與 Questions.json。</p><p><code>enum class Screen { HOME, QUIZ, RESULT, RECORDS }</code> + <code>when (screen)</code>。</p><p>HomeScreen、BackBar、三個空頁面 + BackHandler。</p><div class="see"><b>完成後</b>四頁可以互相切換。</div>
+<label class="done"><input type="checkbox" id="ex1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>骨架 2：題目與點選作答（約 25 分）</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p><code>data class Question(qid, question, options, answerIndex)</code> + <code>loadQuestions(context)</code>。</p><p><code>remember { allQuestions.shuffled().take(10) }</code>、index、2×2 weight 版面。</p><p><code>clickable { choose(i) }</code>、Toast、<code>wrongIds = mutableSetOf&lt;String&gt;()</code>、退出 AlertDialog。</p><div class="see"><b>完成後</b>能用點的玩完 10 題。</div>
+<label class="done"><input type="checkbox" id="ex2"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="3">
+<div class="ex-top"><span class="exn">03</span><div class="ex-title"><h3>骨架 3：顏色、計時、結算（約 25 分）</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p><code>nextColorIndexes(8, previous)</code>：<code>shuffled().take(4)</code> + <code>indices.none</code>。</p><p><code>LaunchedEffect(resumed)</code> + lifecycle observer；<code>formatClock</code>。</p><p><code>GameResult</code>、<code>onFinish: (GameResult) -&gt; Unit</code>、<code>SimpleDateFormat("yyyy.MM.dd hh:mm a", Locale.US)</code>。</p>
+<label class="done"><input type="checkbox" id="ex3"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="4">
+<div class="ex-top"><span class="exn">04</span><div class="ex-title"><h3>骨架 4：SQLite（約 20 分）</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p><code>RecordDb : SQLiteOpenHelper</code>，onCreate 建表。</p><p><code>insert</code>（ContentValues）、<code>getAll</code>（rawQuery … ORDER BY end_time DESC）。</p><p>RecordsScreen：LazyColumn + Card + 尚無紀錄。</p><div class="see"><b>完成後</b>重開 App 紀錄還在。</div>
+<label class="done"><input type="checkbox" id="ex4"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="5">
+<div class="ex-top"><span class="exn">05</span><div class="ex-title"><h3>骨架 5：陀螺儀游標（約 30 分）</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>SensorManager + TYPE_GYROSCOPE，<code>integrate(angle, rate, dt)</code>。</p><p>onGloballyPositioned 量 4 格 → left/top/right/bottom、originX/Y。</p><p><code>clamp(cursorPos(center, angleY, baseY, 800f), left + R, right - R)</code>，雙擊 base = angle。</p><p>Box { Column; Canvas { drawCircle } }。</p>
+<label class="done"><input type="checkbox" id="ex5"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="6">
+<div class="ex-top"><span class="exn">06</span><div class="ex-title"><h3>骨架 6：停留選答與狀態（約 25 分）</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p><code>hovered = hitIndex(cursorX, cursorY, rects)</code>。</p><p><code>LaunchedEffect(hovered, phase, index)</code>：3 秒 → marked、CORRECT / WRONG。</p><p><code>LaunchedEffect(phase, index)</code>：WRONG 鎖 5 秒、CORRECT 等 2 秒換題 / onFinish。</p><p>drawArc 藍色 dwell、紅色 lock；紅框 / 綠框。</p><div class="see"><b>完成後</b>只用傾斜玩完一局。</div>
+<label class="done"><input type="checkbox" id="ex6"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="7">
+<div class="ex-top"><span class="exn">07</span><div class="ex-title"><h3>最後 5 分鐘</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>乾淨安裝測試 → Generate APKs → 改名。</p>
+<label class="done"><input type="checkbox" id="ex7"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="sheet">
+  <div class="sh"><h2>評分表</h2><span class="pill" style="background:var(--dart-soft);color:var(--dart)">100 分</span>
+  <p>比賽結束後交換電腦，在對方的模擬器上逐項操作，有做到才勾。扣分項目是「有發生」才勾。</p></div>
+  <div class="sheet"><div class="sgrp"><h3>扣分項目<small>勾選代表有發生</small></h3><ul><li><label><input type="checkbox" class="sc" id="sc59" data-pts="-1"><span>專案無法正確開啟</span><b>-1</b></label></li><li><label><input type="checkbox" class="sc" id="sc60" data-pts="-1"><span>無法在 Android Emulator 執行</span><b>-1</b></label></li><li><label><input type="checkbox" class="sc" id="sc61" data-pts="-1"><span>App 名稱不是 QXX</span><b>-1</b></label></li><li><label><input type="checkbox" class="sc" id="sc62" data-pts="-1"><span>Package name 不是 tw.mad08.gyroquizXX</span><b>-1</b></label></li><li><label><input type="checkbox" class="sc" id="sc63" data-pts="-5"><span>未匯出 APK 或位置、名稱錯誤</span><b>-5</b></label></li></ul></div><div class="sgrp"><h3>首頁<small>4 分</small></h3><ul><li><label><input type="checkbox" class="sc" id="sc0" data-pts="0.5"><span>應用程式 Logo</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc1" data-pts="0.5"><span>「Gyro Quiz」標題</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc2" data-pts="0.5"><span>「新遊戲」按鈕</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc3" data-pts="0.5"><span>「遊玩紀錄」按鈕</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc4" data-pts="1"><span>點擊新遊戲導頁至答題頁面</span><b>1</b></label></li><li><label><input type="checkbox" class="sc" id="sc5" data-pts="1"><span>點擊遊玩紀錄導頁至遊玩紀錄頁面</span><b>1</b></label></li></ul></div><div class="sgrp"><h3>答題頁面 UI<small>4.5 分</small></h3><ul><li><label><input type="checkbox" class="sc" id="sc6" data-pts="0.5"><span>返回按鈕</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc7" data-pts="0.5"><span>目前題號/全部題數</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc8" data-pts="0.5"><span>答題進度 Progress Bar</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc9" data-pts="0.5"><span>答題經過時間 (mm:ss)</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc10" data-pts="0.5"><span>題目內文</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc11" data-pts="1"><span>4 個答案選項</span><b>1</b></label></li><li><label><input type="checkbox" class="sc" id="sc12" data-pts="1"><span>答案選擇游標</span><b>1</b></label></li></ul></div><div class="sgrp"><h3>答題頁面功能<small>42 分</small></h3><ul><li><label><input type="checkbox" class="sc" id="sc13" data-pts="1"><span>返回按鈕顯示 Dialog 確認退出</span><b>1</b></label></li><li><label><input type="checkbox" class="sc" id="sc14" data-pts="2"><span>Questions.json 隨機 10 題不重複</span><b>2</b></label></li><li><label><input type="checkbox" class="sc" id="sc15" data-pts="2"><span>題目與選項依 json 顯示</span><b>2</b></label></li><li><label><input type="checkbox" class="sc" id="sc16" data-pts="2"><span>經過時間進背景暫停、回來繼續</span><b>2</b></label></li><li><label><input type="checkbox" class="sc" id="sc17" data-pts="3"><span>Progress Bar 依題數正確顯示</span><b>3</b></label></li><li><label><input type="checkbox" class="sc" id="sc18" data-pts="2"><span>選項顏色不重複且與上一題同位置不重複</span><b>2</b></label></li><li><label><input type="checkbox" class="sc" id="sc19" data-pts="2"><span>游標初始在 4 個選項中心點</span><b>2</b></label></li><li><label><input type="checkbox" class="sc" id="sc20" data-pts="10"><span>游標依陀螺儀傾斜角度移動</span><b>10</b></label></li><li><label><input type="checkbox" class="sc" id="sc21" data-pts="8"><span>游標不可超出螢幕與 4 個選項</span><b>8</b></label></li><li><label><input type="checkbox" class="sc" id="sc22" data-pts="10"><span>雙擊校正，之後以相對座標計算</span><b>10</b></label></li></ul></div><div class="sgrp"><h3>選擇／正確／錯誤狀態<small>22 分</small></h3><ul><li><label><input type="checkbox" class="sc" id="sc23" data-pts="3"><span>停在選項上顯示圓形進度條，停留 3 秒確認</span><b>3</b></label></li><li><label><input type="checkbox" class="sc" id="sc24" data-pts="3"><span>圓形進度條 0～100%</span><b>3</b></label></li><li><label><input type="checkbox" class="sc" id="sc25" data-pts="4"><span>移至其他選項重新計算</span><b>4</b></label></li><li><label><input type="checkbox" class="sc" id="sc26" data-pts="3"><span>答錯：紅色圓形進度條</span><b>3</b></label></li><li><label><input type="checkbox" class="sc" id="sc27" data-pts="3"><span>答錯：禁止選擇 5 秒（游標可動）</span><b>3</b></label></li><li><label><input type="checkbox" class="sc" id="sc28" data-pts="2"><span>紅色進度條 100～0%</span><b>2</b></label></li><li><label><input type="checkbox" class="sc" id="sc29" data-pts="0.5"><span>顯示「選擇錯誤」</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc30" data-pts="1"><span>答錯選項紅框 5 秒</span><b>1</b></label></li><li><label><input type="checkbox" class="sc" id="sc31" data-pts="1"><span>答對選項綠框 2 秒</span><b>1</b></label></li><li><label><input type="checkbox" class="sc" id="sc32" data-pts="1"><span>2 秒後進入下一題</span><b>1</b></label></li><li><label><input type="checkbox" class="sc" id="sc33" data-pts="0.5"><span>最後一題結束導頁至結算畫面</span><b>0.5</b></label></li></ul></div><div class="sgrp"><h3>結算畫面<small>15.5 分</small></h3><ul><li><label><input type="checkbox" class="sc" id="sc34" data-pts="0.5"><span>返回按鈕</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc35" data-pts="0.5"><span>答對題數</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc36" data-pts="0.5"><span>錯誤題數</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc37" data-pts="0.5"><span>答題時長</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc38" data-pts="0.5"><span>「再玩一次」按鈕</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc39" data-pts="0.5"><span>「回首頁」按鈕</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc40" data-pts="0.5"><span>答題結束日期時間</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc41" data-pts="0.5"><span>返回或回首頁導頁至首頁</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc42" data-pts="0.5"><span>再玩一次開始新遊戲</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc43" data-pts="0.5"><span>日期時間格式 2026.06.26 05:45 PM</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc44" data-pts="0.5"><span>時長格式 12m 11s</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc45" data-pts="0.5"><span>正確顯示答對題數</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc46" data-pts="0.5"><span>正確顯示錯誤題數</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc47" data-pts="0.5"><span>正確顯示答題時長</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc48" data-pts="0.5"><span>正確顯示結束日期時間</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc49" data-pts="8"><span>答題結果保存至 SQLite</span><b>8</b></label></li></ul></div><div class="sgrp"><h3>遊玩紀錄畫面<small>12 分</small></h3><ul><li><label><input type="checkbox" class="sc" id="sc50" data-pts="0.5"><span>返回按鈕</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc51" data-pts="0.5"><span>「遊玩紀錄」標題</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc52" data-pts="0.5"><span>列表：答對/錯誤題數</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc53" data-pts="0.5"><span>列表：答題時長</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc54" data-pts="0.5"><span>列表：結束日期時間</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc55" data-pts="0.5"><span>返回導頁至首頁</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc56" data-pts="0.5"><span>日期時間格式正確</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc57" data-pts="0.5"><span>時長格式正確</span><b>0.5</b></label></li><li><label><input type="checkbox" class="sc" id="sc58" data-pts="8"><span>列表資料來自 SQLite</span><b>8</b></label></li></ul></div></div><div class="total"><span>得分</span><b id="score">0 / 100</b><button type="button" id="resetScore">清除勾選</button></div>
+</section><section id="coach">
+  <div class="sh"><h2>教練解答</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">需要密碼</span>
+  <p></p></div>
+  <div class="coach" id="coachBox">
+<p class="lock">🔒 教練解答（需要密碼）。解開後同一個分頁的其他堂也會自動解開，關閉分頁就會鎖回去。</p>
+<form id="coachForm"><input type="password" id="coachPw" placeholder="輸入教練密碼" autocomplete="current-password" aria-label="教練密碼"><button type="submit">解鎖</button><span class="msg" id="coachMsg"></span></form>
+<div class="body" id="coachBody" hidden></div>
+<script type="application/octet-stream" id="coachData">6+KcDZg+eU0wwjDK5/JCGg==.pKl4fGtpftDDYCFl.31xxamR8gAGlSqcuv3uYIiXsEp7ENGIYDrDhZz0HwRUWZXIcoSc7/XBsTEu2CpgGOy1rK0EQPDt5Tca+BCIapI3SIL04szRrA3zvkmUa4O2MhGVFcrjzVSgfJLJnmuCGAWMpRntTDF7raEyvfTlclmSN1sIEKp0iNs6qgMSHtPrZUPn4AeT3YyF/yqSnNzRACfV2fbtkbPM5PRFPQsN7VSPV6fjrwKyIAHDSSSgjG15mKCvEBJZSuB3/axBtvotmzgnVe7FrhlKEyM4hm72RV1jJpI5YPswstu6M0SDPsLRnLOINer5M2JZm+dGcZeHMOJsznQJ7ISAr3omc+T+7+2nMCBT0b7VbSyWUsVDo4QE5iet3EZxT37Ivmb8cQdhqrTW8MjG3h6s9zDnKlZD4XCApsFl5+BhhvjI5BxjStKc5YYHZsQ+12xK+tejBpJOr7RGmbmA6V/AqPg7aZa/vmuBCRcJ40IaZAJ26a1o82Gp+FDGov5ZPATWGl71DYqMfGOhw4oizHvH5aRNVY1H5+NNgX6t4s4hMDXdnK57mkgy42W7Kw8wP55ReVFaMUq0MW2+EjIdkUtNu83gm/lQ9xtUZqYjjDVB/7PSMf8hANAv2NfTbYvfI5nbD6gorhCaCfFldy0JoWDbDe4oZso9MMQQ599IT5aPqbDOHwYqkw7jevWjIv8NvTWw56g9dDOOQWhFa2BnNASshKGGgulzolvUElDoctKzv9je92IaoBdo0jms3gKoUK9sZ+CfufERNwWrPVbWcCTarq7DYufoZVSlbXSJ7sFMFMevK1vsYQqlpQAGXIY3x0XapNR/KMnxT2EokuNJgMKA0cnyT3w==</script>
+</div>
+</section>
+
+<div class="pager"><a href="lesson51.html"><small>上一堂</small>第 51 堂 完整程式導讀</a><a class="nx" href="mock2.html"><small>下一堂</small>模擬賽二：正式規格</a></div>
+<footer>Android Compose 入門・模擬賽一：看骨架卡完成 GyroQuiz</footer>
+</div>
+
+<script>
+(function(){
+  var KW=/^(fun|val|var|return|if|else|when|for|in|until|downTo|step|while|do|repeat|class|data|enum|object|true|false|null|is|as|import|package|override|private|set|get|const|it|by|super|this|try|catch|finally|throw|break|continue|lateinit|vararg)$/;
+  var CS=/^(int|float|double|bool|string|char|void|var|new|return|if|else|switch|case|default|for|foreach|in|while|do|class|struct|public|private|static|using|namespace|true|false|null|this|break|continue|const|enum|out|ref|readonly)$/;
+  var TY=/^(Int|Long|Float|Double|Boolean|String|Char|Unit|List|MutableList|Array|IntArray|Map|Set|Pair|Any|Modifier|Color|Composable|Screen|Phase|Question|GameResult|RecordDb|Context|Bundle|Offset|Size|Console|Math|Random)$/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')|(@?[A-Za-z_]\w*)|(\b\d+(?:\.\d+)?[fL]?\b)/g;
+  function hl(root){
+    root.querySelectorAll('code[data-lang]').forEach(function(el){
+      if(el.getAttribute('data-done'))return; el.setAttribute('data-done','1');
+      var lang=el.getAttribute('data-lang');
+      var src=el.textContent,out='',last=0,m;
+      re.lastIndex=0;
+      while((m=re.exec(src))){
+        out+=esc(src.slice(last,m.index));
+        var t=m[0],cls='';
+        if(m[1])cls='c';else if(m[2])cls='s';else if(m[4])cls='n';
+        else if(m[3]&&(lang==='kotlin'||lang==='csharp')){var w=t.replace('@','');if(t.charAt(0)==='@')cls='t';else if((lang==='kotlin'?KW:CS).test(w))cls='k';else if(TY.test(w))cls='t';}
+        out+=cls?'<span class="tk-'+cls+'">'+esc(t)+'</span>':esc(t);
+        last=re.lastIndex;
+      }
+      out+=esc(src.slice(last));el.innerHTML=out;
+    });
+  }
+  hl(document);
+  var KEY='asc-m1-progress';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){state={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var prog=document.getElementById('prog');
+  var cardsEl=document.querySelectorAll('.ex');
+  function refresh(){
+    var n=0;
+    cardsEl.forEach(function(card){var cb=card.querySelector('input');var on=cb.checked;card.classList.toggle('is-done',on);if(on)n++;});
+    if(prog){if(!cardsEl.length)prog.style.display='none';else prog.textContent='完成 '+n+' / '+cardsEl.length;}
+  }
+  document.querySelectorAll('input[type=checkbox]:not(.sc)').forEach(function(cb){
+    if(state[cb.id])cb.checked=true;
+    cb.addEventListener('change',function(){state[cb.id]=cb.checked;save();refresh();});
+  });
+  refresh();
+  // ---------- 教練解答 ----------
+  var data=document.getElementById('coachData'); if(!data) return;
+  var form=document.getElementById('coachForm'), pw=document.getElementById('coachPw'), msg=document.getElementById('coachMsg'), body=document.getElementById('coachBody');
+  function b64(s){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function unlock(p,quiet){
+    if(!(window.crypto&&crypto.subtle)){msg.textContent='這個瀏覽器不支援解密，請用 Chrome 或 Edge 開啟';return;}
+    var parts=data.textContent.trim().split('.');
+    var enc=new TextEncoder();
+    crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveKey']).then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(parts[0]),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    }).then(function(key){
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:b64(parts[1])},key,b64(parts[2]));
+    }).then(function(buf){
+      body.innerHTML='<div class="bar2"><button type="button" id="coachLock">鎖回去</button></div>'+new TextDecoder().decode(buf);
+      body.hidden=false; form.hidden=true; msg.textContent='';
+      document.querySelector('#coachBox .lock').textContent='🔓 教練解答';
+      try{sessionStorage.setItem('asc-coach',p);}catch(e){}
+      hl(body);
+      document.getElementById('coachLock').addEventListener('click',function(){try{sessionStorage.removeItem('asc-coach');}catch(e){}location.reload();});
+    }).catch(function(){ if(!quiet) msg.textContent='密碼錯誤'; });
+  }
+  form.addEventListener('submit',function(e){e.preventDefault();unlock(pw.value,false);});
+  try{var saved=sessionStorage.getItem('asc-coach'); if(saved) unlock(saved,true);}catch(e){}
+})();
+</script>
+<script>
+(function(){
+  var el=document.getElementById('score'); if(!el) return;
+  var total=el.textContent.split('/')[1].trim();
+  function sum(){var s=0;document.querySelectorAll('input.sc').forEach(function(c){if(c.checked)s+=parseFloat(c.getAttribute('data-pts'));});el.textContent=(Math.round(s*10)/10)+' / '+total;}
+  document.querySelectorAll('input.sc').forEach(function(c){c.addEventListener('change',sum);});
+  document.getElementById('resetScore').addEventListener('click',function(){document.querySelectorAll('input.sc').forEach(function(c){c.checked=false;c.dispatchEvent(new Event('change'));});sum();});
+  setTimeout(sum,0);
+})();
+</script>
+</body></html>

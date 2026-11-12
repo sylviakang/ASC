@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Android Compose 入門 第 41 堂</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a bright "training camp" handout. Colour-coded stations (concepts, drills, checklist, homework),
+   Kotlin always violet, C# always sky blue, one energetic coral for progress. */
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --ink:#1B2233; --muted:#5A6478; --line:#DCE3EE;
+  --dart:#00A396; --dart-soft:#DDF5F2;
+  --kotlin:#7F52FF; --kotlin-soft:#EEE8FF;
+  --coral:#FF6A47; --coral-soft:#FFE6DF;
+  --sun:#FFB800; --sun-soft:#FFF3D1;
+  --sky:#2F8CEB; --sky-soft:#E0EEFD;
+  --pink:#E8458B; --pink-soft:#FCE3EE;
+  --code-bg:#1E2433; --code-ink:#E7ECF5; --c-com:#8A96AD; --c-str:#9BE38F; --c-kw:#FF9EC4; --c-num:#FFD36B; --c-type:#7FD8FF;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:8px 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.25}
+p{margin:0}
+code,pre{font-family:var(--f-mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+/* nav */
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px))}
+nav.bar .in{max-width:1040px;margin:0 auto;display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none}
+nav.bar a{flex:none;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+nav.bar a:hover{border-color:var(--ink)}
+nav.bar .prog{margin-left:auto;flex:none;font-size:14px;font-weight:700;color:var(--coral);font-variant-numeric:tabular-nums;padding-left:8px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;padding-block:40px 28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--coral)}
+.eyebrow b{background:var(--coral);color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:.04em}
+.hero h1{font-size:clamp(34px,6vw,56px);margin-top:10px}
+.hero h1 .d{color:var(--kotlin)}
+.hero .lead{margin-top:14px;color:var(--muted);max-width:34em}
+.swap{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;min-width:0}
+.swap .ln{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:14px;padding:10px 12px;border-radius:12px;overflow-x:auto}
+.swap .k{background:var(--kotlin-soft);color:var(--kotlin)}
+.swap .dd{background:var(--dart-soft);color:var(--dart)}
+.tag{flex:none;font-family:var(--f-body);font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px}
+.k .tag{background:var(--kotlin)} .dd .tag{background:var(--dart)}
+.swap .sk{background:var(--sky-soft);color:var(--sky)} .sk .tag{background:var(--sky)}
+.swap .co{background:var(--coral-soft);color:var(--coral)} .co .tag{background:var(--coral)}
+.swap .mid{justify-self:center;font-size:22px;color:var(--sun);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+/* timeline */
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.timeline h2{font-size:20px}
+.tl{display:flex;margin-top:14px;border-radius:12px;overflow:hidden;min-height:64px}
+.tl div{padding:10px 12px;color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tl b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.tl small{font-size:12px;opacity:.95;font-variant-numeric:tabular-nums}
+.tl .t1{flex:10;background:var(--sky)} .tl .t2{flex:30;background:var(--kotlin)} .tl .t3{flex:60;background:var(--dart)} .tl .t4{flex:20;background:var(--coral)}
+.tl-note{margin-top:10px;font-size:14px;color:var(--muted)}
+
+section{margin-top:56px;scroll-margin-top:72px}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sh h2{font-size:clamp(26px,4vw,34px)}
+.sh .pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 12px}
+.sh p{flex-basis:100%;color:var(--muted)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;counter-reset:s}
+.steps li{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 52px;position:relative;min-width:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--sky);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+.steps{padding:0;margin:0}
+.ic{background:var(--sky-soft);color:var(--sky);padding:1px 6px;border-radius:6px;font-size:.9em}
+
+/* code */
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px 18px;margin:0;overflow-x:auto;font-size:13.5px;line-height:1.65;tab-size:2}
+.tk-c{color:var(--c-com);font-style:italic}
+.sig .tk-k{color:var(--pink)} .sig .tk-t{color:var(--sky);font-weight:600} .sig .tk-n{color:var(--coral)} .sig .tk-s{color:var(--dart)} .tk-s{color:var(--c-str)} .tk-k{color:var(--c-kw)} .tk-n{color:var(--c-num)} .tk-t{color:var(--c-type)}
+
+/* comparison */
+.tbl{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+thead th{font-family:var(--f-display);font-weight:400;font-size:17px;text-align:left;padding:12px 14px;color:#fff}
+thead th:first-child{background:var(--ink);color:var(--bg)}
+thead .kh{background:var(--kotlin)} thead .ch{background:var(--sky)}
+tbody th{text-align:left;font-weight:500;padding:9px 14px;white-space:nowrap}
+tbody td{padding:9px 14px}
+tbody tr+tr th,tbody tr+tr td{border-top:1px solid var(--line)}
+td.ct code{color:var(--sky)} td.kt code{color:var(--kotlin);font-weight:600}
+td code{font-size:13.5px}
+tr.hot{background:var(--sun-soft)}
+.star{color:var(--sun);margin-left:6px}
+.legend{margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{background:var(--sun-soft);padding:1px 8px;border-radius:6px;color:var(--ink)}
+
+/* concepts */
+.concepts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.concept{background:var(--surface);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;border-top:6px solid var(--cc);min-width:0}
+.concept header{display:flex;gap:10px;align-items:center}
+.cnum{width:32px;height:32px;border-radius:10px;background:var(--cs);color:var(--cc);font-weight:700;display:grid;place-items:center;flex:none}
+.concept h3{font-size:21px}
+.concept p{color:var(--muted);font-size:15px}
+.c0{--cc:var(--sky);--cs:var(--sky-soft)} .c1{--cc:var(--coral);--cs:var(--coral-soft)} .c2{--cc:var(--dart);--cs:var(--dart-soft)}
+.c3{--cc:var(--sun);--cs:var(--sun-soft)} .c4{--cc:var(--kotlin);--cs:var(--kotlin-soft)} .c5{--cc:var(--pink);--cs:var(--pink-soft)}
+
+/* exercises */
+.rule{background:var(--coral-soft);border-radius:14px;padding:12px 16px;font-size:15px;margin-bottom:16px}
+.rule b{color:var(--coral)}
+.exs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ex{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .2s,background .2s}
+.ex.is-done{border-color:var(--dart);background:linear-gradient(var(--dart-soft),var(--surface) 70%)}
+.ex-top{display:flex;gap:12px;align-items:center}
+.exn{font-family:var(--f-display);font-size:28px;color:var(--coral);line-height:1;font-variant-numeric:tabular-nums}
+.ex-title{flex:1;min-width:0}
+.ex h3{font-size:19px}
+.use{font-size:12.5px;color:var(--muted)}
+.lv{display:flex;gap:3px;flex:none}
+.lv i{width:10px;height:10px;border-radius:3px;background:var(--line)}
+.lv i.on{background:var(--sun)}
+pre.sig{margin:0;background:var(--kotlin-soft);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:13px;overflow-x:auto}
+.ex p{font-size:15px}
+.io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.io>div:not(.arrow){background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.io pre{margin:2px 0 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.io pre.out{color:var(--dart);font-weight:600}
+.io-l{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.arrow{align-self:center;color:var(--coral);font-weight:700}
+.done{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;cursor:pointer;margin-top:auto;padding-top:4px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--dart);flex:none}
+.data{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:center}
+.data p{font-size:15px;color:var(--muted)}
+.tip{margin-top:14px;font-size:15px;background:var(--sun-soft);border-radius:12px;padding:10px 14px}
+
+/* checklist */
+.checks{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:15px;height:100%}
+.checks input{margin-top:4px}
+.checks input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dart)}
+
+/* homework */
+.hws{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hw{background:var(--surface);border-radius:16px;padding:16px;border:2px dashed var(--kotlin);display:flex;flex-direction:column;gap:10px;min-width:0}
+.hwn{align-self:flex-start;font-size:12.5px;font-weight:700;background:var(--kotlin);color:#fff;border-radius:999px;padding:2px 10px}
+.hw p{font-size:14.5px}
+.hio{color:var(--muted)} .hio b{color:var(--ink);font-weight:700;margin-right:4px} .hio code{color:var(--kotlin);font-size:13px}
+
+/* skeleton cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.kcard{background:var(--surface);border:2px solid var(--sun);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.kcard h3{font-size:18px}
+.kcard pre.code{font-size:12.5px;padding:12px 14px}
+
+footer{margin-top:56px;font-size:13px;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .hero,.concepts,.exs,.checks,.hws,.data,.cards{grid-template-columns:minmax(0,1fr)}
+  .tl{flex-wrap:wrap} .tl div{flex-basis:50%!important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.exs.one{grid-template-columns:minmax(0,1fr)}
+.pts{flex:none;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-soft);border-radius:999px;padding:2px 10px;max-width:45%;text-align:center}
+.see{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14.5px}
+.see b{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-right:6px}
+.ex pre.code{font-size:13px}
+.see code,.ex p code,.steps code,.tl-note code,.note code,.tip code{overflow-wrap:anywhere}
+.file{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-bottom:-4px}
+.note{margin-top:14px;font-size:15px;background:var(--sky-soft);border-radius:12px;padding:10px 14px}
+.scorebar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.scorebar span{font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.scorebar span b{color:var(--coral)}
+.tl .t5{background:var(--pink)}
+table.plain{min-width:520px}
+table.plain thead th{background:var(--ink);color:var(--bg)}
+
+.sheet{display:grid;gap:14px}
+.sgrp{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.sgrp h3{font-size:18px;display:flex;justify-content:space-between;gap:8px}
+.sgrp h3 small{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.sgrp ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.sgrp label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+.sgrp label b{margin-left:auto;flex:none;color:var(--coral);font-variant-numeric:tabular-nums}
+.sgrp input{margin-top:3px}
+.total{position:sticky;bottom:12px;margin-top:16px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:18px;font-family:var(--f-display)}
+.total b{font-size:26px;color:var(--sun);font-variant-numeric:tabular-nums}
+.total button{font:inherit;font-size:14px;background:transparent;color:var(--bg);border:1px solid var(--bg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.spec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.spec h3{font-size:19px}
+.spec ol,.spec ul{margin:0;padding-left:22px;display:grid;gap:4px;font-size:15px}
+.chg{background:var(--sun-soft);border-radius:14px;padding:12px 16px}
+.chg ol{margin:6px 0 0;padding-left:22px;display:grid;gap:4px}
+
+.goals{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.goals li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 40px;position:relative;font-size:15.5px}
+.goals li::before{content:"✓";position:absolute;left:14px;top:9px;color:var(--dart);font-weight:700}
+.doc{display:grid;gap:18px}
+.dsec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.dsec h3{font-size:21px;display:flex;gap:10px;align-items:center}
+.dsec h3 .dn{flex:none;width:30px;height:30px;border-radius:9px;background:var(--kotlin-soft);color:var(--kotlin);display:grid;place-items:center;font-size:15px;font-family:var(--f-body);font-weight:700}
+.dsec p,.dsec li{font-size:15.5px}
+.dsec ul,.dsec ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.dsec code:not(pre code),.ex p code,.goals code,.call code,td code{background:var(--bg);border-radius:5px;padding:0 5px;font-size:.92em;overflow-wrap:anywhere}
+.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.side .lab{font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+.side .cs .lab{color:var(--sky)} .side .kt .lab{color:var(--kotlin)}
+.call{border-radius:14px;padding:12px 16px;font-size:15px;display:grid;gap:6px}
+.call b.t{font-size:13px;letter-spacing:.06em}
+.call.warn{background:var(--coral-soft)} .call.warn b.t{color:var(--coral)}
+.call.tip{background:var(--sun-soft)} .call.tip b.t{color:var(--ink)}
+.call.note{background:var(--sky-soft)} .call.note b.t{color:var(--sky)}
+.out{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;white-space:pre-wrap}
+.out::before{content:"執行結果";display:block;font-family:var(--f-body);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+table.pit{min-width:560px}
+table.pit thead th{background:var(--coral);color:#fff}
+.coach{background:var(--surface);border:2px dashed var(--kotlin);border-radius:18px;padding:18px 20px}
+.coach form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.coach input[type=password]{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.coach button{font:inherit;font-weight:700;padding:8px 18px;border-radius:999px;border:0;background:var(--kotlin);color:#fff;cursor:pointer}
+.coach .msg{font-size:14px;color:var(--coral)}
+.coach .body{display:grid;gap:14px}
+.coach .body h3{font-size:19px}
+.coach .lock{font-size:14px;color:var(--muted);margin-bottom:10px}
+.coach .bar2{display:flex;justify-content:flex-end}
+.coach .bar2 button{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500;font-size:13px;padding:4px 12px}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:40px;flex-wrap:wrap}
+.pager a{flex:1 1 200px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);font-size:15px}
+.pager a small{display:block;color:var(--muted);font-size:12px}
+.pager a.nx{text-align:right}
+.home{font-size:14px;text-decoration:none}
+@media (max-width:720px){.side{grid-template-columns:minmax(0,1fr)}}
+</style>
+<style>td,th,#coachBody p,#coachBody li{overflow-wrap:anywhere}#coachBody{min-width:0}</style></head><body>
+<nav class="bar" aria-label="章節"><div class="in">
+  <a class="home" href="index.html">目錄</a><a href="#goals">目標</a><a href="#learn">觀念</a><a href="#follow">跟著做</a><a href="#pit">常見錯誤</a><a href="#practice">練習</a><a href="#sum">重點</a><a href="#coach">教練</a>
+  <span class="prog" id="prog">完成 0</span>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <div>
+    <span class="eyebrow"><b>第 41 堂</b>GyroQuiz：陀螺儀與游標</span>
+    <h1>量出<span class="d">選項位置</span></h1>
+    <p class="lead">選項大小由 weight 自動決定，必須在排版後才知道位置。用 onGloballyPositioned 量出 4 格的矩形和外層的原點，算出選項區範圍，把游標畫到選項區正中央。</p>
+  </div>
+  <div class="swap" aria-label="今天學會"><div class="ln k"><span class="tag">量測</span><span>onGloballyPositioned</span></div><div class="ln sk"><span class="tag">存放</span><span>mutableStateListOf</span></div><div class="ln co"><span class="tag">換算</span><span>x - originX</span></div></div>
+</header>
+
+<div class="timeline">
+  <h2>這堂的 50 分鐘</h2>
+  <div class="tl"><div class="t1" style="flex:5"><b>複習</b><small>0–5 分</small></div><div class="t2" style="flex:15"><b>觀念</b><small>5–20 分</small></div><div class="t3" style="flex:20"><b>跟著做</b><small>20–40 分</small></div><div class="t4" style="flex:10"><b>練習</b><small>40–50 分</small></div></div>
+  <p class="tl-note">複習：Canvas 的 (0,0) 在哪？往下 y 變大還是變小？</p>
+</div>
+
+<section id="goals">
+  <div class="sh"><h2>學習目標</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">這堂結束時</span>
+  <p></p></div>
+  <ul class="goals"><li>會用 onGloballyPositioned 取得元件位置</li><li>會避免無限重畫</li><li>會算出 4 格的外框範圍</li><li>理解 root 座標與 Canvas 座標的差別</li></ul>
+</section><section id="learn">
+  <div class="sh"><h2>觀念講解</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">慢慢讀</span>
+  <p></p></div>
+  <div class="doc"><article class="dsec"><h3><span class="dn">1</span>為什麼要量位置</h3><p>之後要做兩件事都需要知道「選項在螢幕上的哪裡」：</p><ol><li>游標一開始要在<b>選項區中心</b>，而且不能跑出選項區（第 42、43 堂）。</li><li>判斷游標停在<b>哪一個選項上</b>（第 45 堂）。</li></ol><p>但選項大小是 weight 自動分配的，不同手機不一樣，寫死數字一定錯。所以要讓 Compose 排好版之後<b>告訴我們</b>每格的位置。</p></article><article class="dsec"><h3><span class="dn">2</span>onGloballyPositioned：排好版之後通知你</h3><pre class="code"><code data-lang="kotlin">Modifier.onGloballyPositioned { coords -&gt;
+    val b = coords.boundsInRoot()     // 這個元件在整個畫面的位置（px）
+    // b.left, b.top, b.right, b.bottom
+}</code></pre><p>像 WinForms 讀控制項的 <code>Left / Top / Right / Bottom</code>，只是 Compose 要等排版完成才知道，所以用「通知」的方式拿到。</p><div class="tbl"><table class="plain"><thead><tr><th>屬性</th><th>意思</th></tr></thead><tbody><tr><td>b.left / b.right</td><td>左邊、右邊的 x</td></tr><tr><td>b.top / b.bottom</td><td>上緣、下緣的 y</td></tr><tr><td>positionInRoot()</td><td>左上角那一點 (x, y)</td></tr></tbody></table></div></article><article class="dsec"><h3><span class="dn">3</span>存起來：4 格的矩形</h3><p>每格存成 <code>floatArrayOf(left, top, right, bottom)</code>，4 格放在一個 List 裡。一開始還沒量到，所以放 4 個 null：</p><pre class="code"><code data-lang="kotlin">val rects = remember { mutableStateListOf&lt;FloatArray?&gt;(null, null, null, null) }</code></pre><ul><li><code>mutableStateListOf</code>：會觸發重畫的 List（像 mutableStateOf，但是一整個清單）。</li><li><code>FloatArray?</code>：可能是 null 的 float 陣列。</li><li>在第 i 格的 Modifier 裡寫 <code>rects[i] = r</code>。</li></ul><div class="call warn"><b class="t">注意</b><div><b>只在位置改變時才寫入</b>：<code>if (rects[i]?.contentEquals(r) != true) rects[i] = r</code>。如果每次都寫入，寫入 → 重畫 → 又量到 → 又寫入……會一直重畫停不下來。<code>contentEquals</code> 比較兩個陣列的內容是否一樣。</div></div></article><article class="dsec"><h3><span class="dn">4</span>算出選項區的範圍</h3><div class="file">QuizScreen.kt</div><pre class="code"><code data-lang="kotlin">// ---------- 選項位置 ----------
+val rects = remember { mutableStateListOf&lt;FloatArray?&gt;(null, null, null, null) }
+var originX by remember { mutableFloatStateOf(0f) }
+var originY by remember { mutableFloatStateOf(0f) }
+val ready = rects.all { it != null }                     // 4 格都量好了嗎
+val left = if (ready) rects.minOf { it!![0] } else 0f
+val top = if (ready) rects.minOf { it!![1] } else 0f
+val right = if (ready) rects.maxOf { it!![2] } else 0f
+val bottom = if (ready) rects.maxOf { it!![3] } else 0f</code></pre><ul><li><code>rects.all { it != null }</code>：4 格都量好才算 ready。</li><li>選項區的左邊 = 4 格裡最小的 left；右邊 = 最大的 right，上下同理。</li><li><code>it!![0]</code>：<code>!!</code> 是「我保證不是 null」。前面已經檢查 ready，所以安全。</li></ul><p>選項區中心就是 <code>((left + right) / 2, (top + bottom) / 2)</code>。</p></article><article class="dsec"><h3><span class="dn">5</span>座標要扣掉 origin</h3><p>boundsInRoot 是相對於<b>整個畫面</b>（root）的座標；Canvas 的 (0, 0) 卻是<b>Canvas 自己的左上角</b>。因為 App 有 safeDrawingPadding（避開狀態列），兩者差了一段：</p><div class="file">示意</div><pre class="code"><code data-lang="text">畫面頂端 (root y = 0)
+ ┌────────── 狀態列 ──────────┐
+ │                             │ ← 差 originY
+ ├─ 外層 Box / Canvas 的 (0,0) ┤
+ │   …                         │</code></pre><p>所以畫的時候要減掉外層 Box 的位置：<code>x - originX</code>、<code>y - originY</code>。</p><div class="file">QuizScreen.kt</div><pre class="code"><code data-lang="kotlin">Box(
+    modifier = Modifier
+        .fillMaxSize()
+        .onGloballyPositioned {                       // 新增：量出外層 Box 的左上角
+            originX = it.positionInRoot().x
+            originY = it.positionInRoot().y
+        }
+) {
+    Column(…) { … }
+
+    Canvas(Modifier.fillMaxSize()) {
+        if (!ready) return@Canvas                     // 還沒量好就先不畫
+        val c = Offset((left + right) / 2 - originX, (top + bottom) / 2 - originY)
+        drawCircle(Color(0xFF37474F), radius = CURSOR_RADIUS * 0.6f, center = c)
+    }
+}</code></pre></article><article class="dsec"><h3><span class="dn">6</span>選項 Box 加上量測</h3><div class="file">QuizScreen.kt</div><pre class="code"><code data-lang="kotlin">Box(
+    modifier = Modifier
+        .weight(1f)
+        .fillMaxSize()
+        .background(OptionPalette[colors[i]], RoundedCornerShape(16.dp))
+        .clickable { choose(i) }
+        .onGloballyPositioned {                       // 新增：量出這一格的位置
+            val b = it.boundsInRoot()
+            val r = floatArrayOf(b.left, b.top, b.right, b.bottom)
+            if (rects[i]?.contentEquals(r) != true) rects[i] = r
+        }
+        .padding(12.dp),
+    contentAlignment = Alignment.Center
+) { … }</code></pre><div class="call note"><b class="t">補充</b><div>onGloballyPositioned 放在 padding <b>前面</b>，量到的才是整個色塊，而不是扣掉留白的內部。</div></div></article></div>
+</section><section id="follow">
+  <div class="sh"><h2>跟著做</h2><span class="pill" style="background:var(--coral-soft);color:var(--coral)">一步一步</span>
+  <p>每一步做完都執行一次，確認結果和講義一樣再往下。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>rects 與範圍</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>加入「選項位置」那段程式。</p>
+<label class="done"><input type="checkbox" id="ex1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>量四格</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>四個選項 Box 加上 onGloballyPositioned。</p>
+<label class="done"><input type="checkbox" id="ex2"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="3">
+<div class="ex-top"><span class="exn">03</span><div class="ex-title"><h3>量外層</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>外層 Box 加 onGloballyPositioned 存 originX / originY。</p>
+<label class="done"><input type="checkbox" id="ex3"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="4">
+<div class="ex-top"><span class="exn">04</span><div class="ex-title"><h3>畫在選項區中心</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>Canvas 改成畫在 (left+right)/2 - originX…</p><div class="see"><b>完成後</b>圓點出現在四個選項的正中間（四格交界的縫上）。</div>
+<label class="done"><input type="checkbox" id="ex4"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="5">
+<div class="ex-top"><span class="exn">05</span><div class="ex-title"><h3>Log 看數字</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>在 Canvas 前加 <code>Log.d("GQ", "$left $top $right $bottom $originY")</code>，比對螢幕大小。</p><div class="see"><b>完成後</b>right 接近螢幕寬度、originY 約是狀態列高度。</div>
+<label class="done"><input type="checkbox" id="ex5"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="pit">
+  <div class="sh"><h2>常見錯誤</h2><span class="pill" style="background:var(--sun-soft);color:var(--ink)">先看過</span>
+  <p>遇到問題先對照這張表。</p></div>
+  <div class="tbl"><table class="pit"><thead><tr><th>現象</th><th>原因</th><th>怎麼修</th></tr></thead><tbody><tr><td>畫面一直閃、App 變慢</td><td>每次都寫入 rects</td><td>加 contentEquals 判斷</td></tr><tr><td>圓點偏下一點</td><td>沒有扣 originY</td><td>center 的 y 減 originY</td></tr><tr><td>圓點不見</td><td>ready 永遠 false</td><td>4 格都要有 onGloballyPositioned</td></tr><tr><td>!! 造成閃退</td><td>ready 前就用 it!!</td><td>先判斷 ready</td></tr><tr><td>量到的區域偏小</td><td>onGloballyPositioned 在 padding 後</td><td>移到 padding 前</td></tr></tbody></table></div>
+</section><section id="practice">
+  <div class="sh"><h2>小練習</h2><span class="pill" style="background:var(--dart-soft);color:var(--dart)">自己寫</span>
+  <p>先自己寫，寫完再請教練對答案。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>畫出選項區外框</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>在 Canvas 用 drawRect 畫出選項區的紅色外框（style = Stroke(4f)），確認範圍正確，做完刪掉。</p>
+<label class="done"><input type="checkbox" id="pr1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>每格的中心</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>用 for 在每一格的中心畫一個小黑點。</p>
+<label class="done"><input type="checkbox" id="pr2"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="sum">
+  <div class="sh"><h2>重點整理</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">帶回家</span>
+  <p></p></div>
+  <div class="cards"><article class="kcard"><h3>量位置</h3><pre class="code"><code data-lang="kotlin">.onGloballyPositioned {
+  val b = it.boundsInRoot() }</code></pre></article><article class="kcard"><h3>只在改變時寫</h3><pre class="code"><code data-lang="kotlin">if (rects[i]?.contentEquals(r) != true)
+  rects[i] = r</code></pre></article><article class="kcard"><h3>換到 Canvas</h3><pre class="code"><code data-lang="kotlin">x - originX, y - originY</code></pre></article></div>
+</section><section id="coach">
+  <div class="sh"><h2>教練解答</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">需要密碼</span>
+  <p></p></div>
+  <div class="coach" id="coachBox">
+<p class="lock">🔒 教練解答（需要密碼）。解開後同一個分頁的其他堂也會自動解開，關閉分頁就會鎖回去。</p>
+<form id="coachForm"><input type="password" id="coachPw" placeholder="輸入教練密碼" autocomplete="current-password" aria-label="教練密碼"><button type="submit">解鎖</button><span class="msg" id="coachMsg"></span></form>
+<div class="body" id="coachBody" hidden></div>
+<script type="application/octet-stream" id="coachData">RkuMHhDHIhCLkeqTWf9idg==.WbS1ul3bLxmfoX+v.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</script>
+</div>
+</section>
+
+<div class="pager"><a href="lesson40.html"><small>上一堂</small>第 40 堂 Canvas 畫游標</a><a class="nx" href="lesson42.html"><small>下一堂</small>第 42 堂 游標跟著傾斜移動</a></div>
+<footer>Android Compose 入門・第 41 堂 / 共 51 堂</footer>
+</div>
+
+<script>
+(function(){
+  var KW=/^(fun|val|var|return|if|else|when|for|in|until|downTo|step|while|do|repeat|class|data|enum|object|true|false|null|is|as|import|package|override|private|set|get|const|it|by|super|this|try|catch|finally|throw|break|continue|lateinit|vararg)$/;
+  var CS=/^(int|float|double|bool|string|char|void|var|new|return|if|else|switch|case|default|for|foreach|in|while|do|class|struct|public|private|static|using|namespace|true|false|null|this|break|continue|const|enum|out|ref|readonly)$/;
+  var TY=/^(Int|Long|Float|Double|Boolean|String|Char|Unit|List|MutableList|Array|IntArray|Map|Set|Pair|Any|Modifier|Color|Composable|Screen|Phase|Question|GameResult|RecordDb|Context|Bundle|Offset|Size|Console|Math|Random)$/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')|(@?[A-Za-z_]\w*)|(\b\d+(?:\.\d+)?[fL]?\b)/g;
+  function hl(root){
+    root.querySelectorAll('code[data-lang]').forEach(function(el){
+      if(el.getAttribute('data-done'))return; el.setAttribute('data-done','1');
+      var lang=el.getAttribute('data-lang');
+      var src=el.textContent,out='',last=0,m;
+      re.lastIndex=0;
+      while((m=re.exec(src))){
+        out+=esc(src.slice(last,m.index));
+        var t=m[0],cls='';
+        if(m[1])cls='c';else if(m[2])cls='s';else if(m[4])cls='n';
+        else if(m[3]&&(lang==='kotlin'||lang==='csharp')){var w=t.replace('@','');if(t.charAt(0)==='@')cls='t';else if((lang==='kotlin'?KW:CS).test(w))cls='k';else if(TY.test(w))cls='t';}
+        out+=cls?'<span class="tk-'+cls+'">'+esc(t)+'</span>':esc(t);
+        last=re.lastIndex;
+      }
+      out+=esc(src.slice(last));el.innerHTML=out;
+    });
+  }
+  hl(document);
+  var KEY='asc-l41-progress';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){state={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var prog=document.getElementById('prog');
+  var cardsEl=document.querySelectorAll('.ex');
+  function refresh(){
+    var n=0;
+    cardsEl.forEach(function(card){var cb=card.querySelector('input');var on=cb.checked;card.classList.toggle('is-done',on);if(on)n++;});
+    if(prog){if(!cardsEl.length)prog.style.display='none';else prog.textContent='完成 '+n+' / '+cardsEl.length;}
+  }
+  document.querySelectorAll('input[type=checkbox]:not(.sc)').forEach(function(cb){
+    if(state[cb.id])cb.checked=true;
+    cb.addEventListener('change',function(){state[cb.id]=cb.checked;save();refresh();});
+  });
+  refresh();
+  // ---------- 教練解答 ----------
+  var data=document.getElementById('coachData'); if(!data) return;
+  var form=document.getElementById('coachForm'), pw=document.getElementById('coachPw'), msg=document.getElementById('coachMsg'), body=document.getElementById('coachBody');
+  function b64(s){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function unlock(p,quiet){
+    if(!(window.crypto&&crypto.subtle)){msg.textContent='這個瀏覽器不支援解密，請用 Chrome 或 Edge 開啟';return;}
+    var parts=data.textContent.trim().split('.');
+    var enc=new TextEncoder();
+    crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveKey']).then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(parts[0]),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    }).then(function(key){
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:b64(parts[1])},key,b64(parts[2]));
+    }).then(function(buf){
+      body.innerHTML='<div class="bar2"><button type="button" id="coachLock">鎖回去</button></div>'+new TextDecoder().decode(buf);
+      body.hidden=false; form.hidden=true; msg.textContent='';
+      document.querySelector('#coachBox .lock').textContent='🔓 教練解答';
+      try{sessionStorage.setItem('asc-coach',p);}catch(e){}
+      hl(body);
+      document.getElementById('coachLock').addEventListener('click',function(){try{sessionStorage.removeItem('asc-coach');}catch(e){}location.reload();});
+    }).catch(function(){ if(!quiet) msg.textContent='密碼錯誤'; });
+  }
+  form.addEventListener('submit',function(e){e.preventDefault();unlock(pw.value,false);});
+  try{var saved=sessionStorage.getItem('asc-coach'); if(saved) unlock(saved,true);}catch(e){}
+})();
+</script>
+
+</body></html>

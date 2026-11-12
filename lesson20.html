@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Android Compose 入門 第 20 堂</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a bright "training camp" handout. Colour-coded stations (concepts, drills, checklist, homework),
+   Kotlin always violet, C# always sky blue, one energetic coral for progress. */
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --ink:#1B2233; --muted:#5A6478; --line:#DCE3EE;
+  --dart:#00A396; --dart-soft:#DDF5F2;
+  --kotlin:#7F52FF; --kotlin-soft:#EEE8FF;
+  --coral:#FF6A47; --coral-soft:#FFE6DF;
+  --sun:#FFB800; --sun-soft:#FFF3D1;
+  --sky:#2F8CEB; --sky-soft:#E0EEFD;
+  --pink:#E8458B; --pink-soft:#FCE3EE;
+  --code-bg:#1E2433; --code-ink:#E7ECF5; --c-com:#8A96AD; --c-str:#9BE38F; --c-kw:#FF9EC4; --c-num:#FFD36B; --c-type:#7FD8FF;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:8px 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.25}
+p{margin:0}
+code,pre{font-family:var(--f-mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+/* nav */
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px))}
+nav.bar .in{max-width:1040px;margin:0 auto;display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none}
+nav.bar a{flex:none;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+nav.bar a:hover{border-color:var(--ink)}
+nav.bar .prog{margin-left:auto;flex:none;font-size:14px;font-weight:700;color:var(--coral);font-variant-numeric:tabular-nums;padding-left:8px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;padding-block:40px 28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--coral)}
+.eyebrow b{background:var(--coral);color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:.04em}
+.hero h1{font-size:clamp(34px,6vw,56px);margin-top:10px}
+.hero h1 .d{color:var(--kotlin)}
+.hero .lead{margin-top:14px;color:var(--muted);max-width:34em}
+.swap{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;min-width:0}
+.swap .ln{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:14px;padding:10px 12px;border-radius:12px;overflow-x:auto}
+.swap .k{background:var(--kotlin-soft);color:var(--kotlin)}
+.swap .dd{background:var(--dart-soft);color:var(--dart)}
+.tag{flex:none;font-family:var(--f-body);font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px}
+.k .tag{background:var(--kotlin)} .dd .tag{background:var(--dart)}
+.swap .sk{background:var(--sky-soft);color:var(--sky)} .sk .tag{background:var(--sky)}
+.swap .co{background:var(--coral-soft);color:var(--coral)} .co .tag{background:var(--coral)}
+.swap .mid{justify-self:center;font-size:22px;color:var(--sun);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+/* timeline */
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.timeline h2{font-size:20px}
+.tl{display:flex;margin-top:14px;border-radius:12px;overflow:hidden;min-height:64px}
+.tl div{padding:10px 12px;color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tl b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.tl small{font-size:12px;opacity:.95;font-variant-numeric:tabular-nums}
+.tl .t1{flex:10;background:var(--sky)} .tl .t2{flex:30;background:var(--kotlin)} .tl .t3{flex:60;background:var(--dart)} .tl .t4{flex:20;background:var(--coral)}
+.tl-note{margin-top:10px;font-size:14px;color:var(--muted)}
+
+section{margin-top:56px;scroll-margin-top:72px}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sh h2{font-size:clamp(26px,4vw,34px)}
+.sh .pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 12px}
+.sh p{flex-basis:100%;color:var(--muted)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;counter-reset:s}
+.steps li{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 52px;position:relative;min-width:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--sky);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+.steps{padding:0;margin:0}
+.ic{background:var(--sky-soft);color:var(--sky);padding:1px 6px;border-radius:6px;font-size:.9em}
+
+/* code */
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px 18px;margin:0;overflow-x:auto;font-size:13.5px;line-height:1.65;tab-size:2}
+.tk-c{color:var(--c-com);font-style:italic}
+.sig .tk-k{color:var(--pink)} .sig .tk-t{color:var(--sky);font-weight:600} .sig .tk-n{color:var(--coral)} .sig .tk-s{color:var(--dart)} .tk-s{color:var(--c-str)} .tk-k{color:var(--c-kw)} .tk-n{color:var(--c-num)} .tk-t{color:var(--c-type)}
+
+/* comparison */
+.tbl{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+thead th{font-family:var(--f-display);font-weight:400;font-size:17px;text-align:left;padding:12px 14px;color:#fff}
+thead th:first-child{background:var(--ink);color:var(--bg)}
+thead .kh{background:var(--kotlin)} thead .ch{background:var(--sky)}
+tbody th{text-align:left;font-weight:500;padding:9px 14px;white-space:nowrap}
+tbody td{padding:9px 14px}
+tbody tr+tr th,tbody tr+tr td{border-top:1px solid var(--line)}
+td.ct code{color:var(--sky)} td.kt code{color:var(--kotlin);font-weight:600}
+td code{font-size:13.5px}
+tr.hot{background:var(--sun-soft)}
+.star{color:var(--sun);margin-left:6px}
+.legend{margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{background:var(--sun-soft);padding:1px 8px;border-radius:6px;color:var(--ink)}
+
+/* concepts */
+.concepts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.concept{background:var(--surface);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;border-top:6px solid var(--cc);min-width:0}
+.concept header{display:flex;gap:10px;align-items:center}
+.cnum{width:32px;height:32px;border-radius:10px;background:var(--cs);color:var(--cc);font-weight:700;display:grid;place-items:center;flex:none}
+.concept h3{font-size:21px}
+.concept p{color:var(--muted);font-size:15px}
+.c0{--cc:var(--sky);--cs:var(--sky-soft)} .c1{--cc:var(--coral);--cs:var(--coral-soft)} .c2{--cc:var(--dart);--cs:var(--dart-soft)}
+.c3{--cc:var(--sun);--cs:var(--sun-soft)} .c4{--cc:var(--kotlin);--cs:var(--kotlin-soft)} .c5{--cc:var(--pink);--cs:var(--pink-soft)}
+
+/* exercises */
+.rule{background:var(--coral-soft);border-radius:14px;padding:12px 16px;font-size:15px;margin-bottom:16px}
+.rule b{color:var(--coral)}
+.exs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ex{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .2s,background .2s}
+.ex.is-done{border-color:var(--dart);background:linear-gradient(var(--dart-soft),var(--surface) 70%)}
+.ex-top{display:flex;gap:12px;align-items:center}
+.exn{font-family:var(--f-display);font-size:28px;color:var(--coral);line-height:1;font-variant-numeric:tabular-nums}
+.ex-title{flex:1;min-width:0}
+.ex h3{font-size:19px}
+.use{font-size:12.5px;color:var(--muted)}
+.lv{display:flex;gap:3px;flex:none}
+.lv i{width:10px;height:10px;border-radius:3px;background:var(--line)}
+.lv i.on{background:var(--sun)}
+pre.sig{margin:0;background:var(--kotlin-soft);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:13px;overflow-x:auto}
+.ex p{font-size:15px}
+.io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.io>div:not(.arrow){background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.io pre{margin:2px 0 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.io pre.out{color:var(--dart);font-weight:600}
+.io-l{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.arrow{align-self:center;color:var(--coral);font-weight:700}
+.done{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;cursor:pointer;margin-top:auto;padding-top:4px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--dart);flex:none}
+.data{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:center}
+.data p{font-size:15px;color:var(--muted)}
+.tip{margin-top:14px;font-size:15px;background:var(--sun-soft);border-radius:12px;padding:10px 14px}
+
+/* checklist */
+.checks{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:15px;height:100%}
+.checks input{margin-top:4px}
+.checks input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dart)}
+
+/* homework */
+.hws{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hw{background:var(--surface);border-radius:16px;padding:16px;border:2px dashed var(--kotlin);display:flex;flex-direction:column;gap:10px;min-width:0}
+.hwn{align-self:flex-start;font-size:12.5px;font-weight:700;background:var(--kotlin);color:#fff;border-radius:999px;padding:2px 10px}
+.hw p{font-size:14.5px}
+.hio{color:var(--muted)} .hio b{color:var(--ink);font-weight:700;margin-right:4px} .hio code{color:var(--kotlin);font-size:13px}
+
+/* skeleton cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.kcard{background:var(--surface);border:2px solid var(--sun);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.kcard h3{font-size:18px}
+.kcard pre.code{font-size:12.5px;padding:12px 14px}
+
+footer{margin-top:56px;font-size:13px;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .hero,.concepts,.exs,.checks,.hws,.data,.cards{grid-template-columns:minmax(0,1fr)}
+  .tl{flex-wrap:wrap} .tl div{flex-basis:50%!important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.exs.one{grid-template-columns:minmax(0,1fr)}
+.pts{flex:none;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-soft);border-radius:999px;padding:2px 10px;max-width:45%;text-align:center}
+.see{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14.5px}
+.see b{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-right:6px}
+.ex pre.code{font-size:13px}
+.see code,.ex p code,.steps code,.tl-note code,.note code,.tip code{overflow-wrap:anywhere}
+.file{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-bottom:-4px}
+.note{margin-top:14px;font-size:15px;background:var(--sky-soft);border-radius:12px;padding:10px 14px}
+.scorebar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.scorebar span{font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.scorebar span b{color:var(--coral)}
+.tl .t5{background:var(--pink)}
+table.plain{min-width:520px}
+table.plain thead th{background:var(--ink);color:var(--bg)}
+
+.sheet{display:grid;gap:14px}
+.sgrp{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.sgrp h3{font-size:18px;display:flex;justify-content:space-between;gap:8px}
+.sgrp h3 small{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.sgrp ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.sgrp label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+.sgrp label b{margin-left:auto;flex:none;color:var(--coral);font-variant-numeric:tabular-nums}
+.sgrp input{margin-top:3px}
+.total{position:sticky;bottom:12px;margin-top:16px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:18px;font-family:var(--f-display)}
+.total b{font-size:26px;color:var(--sun);font-variant-numeric:tabular-nums}
+.total button{font:inherit;font-size:14px;background:transparent;color:var(--bg);border:1px solid var(--bg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.spec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.spec h3{font-size:19px}
+.spec ol,.spec ul{margin:0;padding-left:22px;display:grid;gap:4px;font-size:15px}
+.chg{background:var(--sun-soft);border-radius:14px;padding:12px 16px}
+.chg ol{margin:6px 0 0;padding-left:22px;display:grid;gap:4px}
+
+.goals{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.goals li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 40px;position:relative;font-size:15.5px}
+.goals li::before{content:"✓";position:absolute;left:14px;top:9px;color:var(--dart);font-weight:700}
+.doc{display:grid;gap:18px}
+.dsec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.dsec h3{font-size:21px;display:flex;gap:10px;align-items:center}
+.dsec h3 .dn{flex:none;width:30px;height:30px;border-radius:9px;background:var(--kotlin-soft);color:var(--kotlin);display:grid;place-items:center;font-size:15px;font-family:var(--f-body);font-weight:700}
+.dsec p,.dsec li{font-size:15.5px}
+.dsec ul,.dsec ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.dsec code:not(pre code),.ex p code,.goals code,.call code,td code{background:var(--bg);border-radius:5px;padding:0 5px;font-size:.92em;overflow-wrap:anywhere}
+.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.side .lab{font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+.side .cs .lab{color:var(--sky)} .side .kt .lab{color:var(--kotlin)}
+.call{border-radius:14px;padding:12px 16px;font-size:15px;display:grid;gap:6px}
+.call b.t{font-size:13px;letter-spacing:.06em}
+.call.warn{background:var(--coral-soft)} .call.warn b.t{color:var(--coral)}
+.call.tip{background:var(--sun-soft)} .call.tip b.t{color:var(--ink)}
+.call.note{background:var(--sky-soft)} .call.note b.t{color:var(--sky)}
+.out{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;white-space:pre-wrap}
+.out::before{content:"執行結果";display:block;font-family:var(--f-body);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+table.pit{min-width:560px}
+table.pit thead th{background:var(--coral);color:#fff}
+.coach{background:var(--surface);border:2px dashed var(--kotlin);border-radius:18px;padding:18px 20px}
+.coach form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.coach input[type=password]{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.coach button{font:inherit;font-weight:700;padding:8px 18px;border-radius:999px;border:0;background:var(--kotlin);color:#fff;cursor:pointer}
+.coach .msg{font-size:14px;color:var(--coral)}
+.coach .body{display:grid;gap:14px}
+.coach .body h3{font-size:19px}
+.coach .lock{font-size:14px;color:var(--muted);margin-bottom:10px}
+.coach .bar2{display:flex;justify-content:flex-end}
+.coach .bar2 button{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500;font-size:13px;padding:4px 12px}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:40px;flex-wrap:wrap}
+.pager a{flex:1 1 200px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);font-size:15px}
+.pager a small{display:block;color:var(--muted);font-size:12px}
+.pager a.nx{text-align:right}
+.home{font-size:14px;text-decoration:none}
+@media (max-width:720px){.side{grid-template-columns:minmax(0,1fr)}}
+</style>
+<style>td,th,#coachBody p,#coachBody li{overflow-wrap:anywhere}#coachBody{min-width:0}</style></head><body>
+<nav class="bar" aria-label="章節"><div class="in">
+  <a class="home" href="index.html">目錄</a><a href="#goals">目標</a><a href="#learn">觀念</a><a href="#follow">跟著做</a><a href="#pit">常見錯誤</a><a href="#practice">練習</a><a href="#sum">重點</a><a href="#coach">教練</a>
+  <span class="prog" id="prog">完成 0</span>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <div>
+    <span class="eyebrow"><b>第 20 堂</b>GyroQuiz：首頁與換頁</span>
+    <h1>建立 <span class="d">GyroQuiz</span> 專案</h1>
+    <p class="lead">從這堂開始做比賽題目 GyroQuiz。比賽一開始要先完成「開場 4 件事」：App 名稱、Package name、鎖定直向、放好素材。這些做錯會直接扣分，所以要練到 5 分鐘內完成。</p>
+  </div>
+  <div class="swap" aria-label="今天學會"><div class="ln k"><span class="tag">名稱</span><span>Q00 ／ tw.mad08.gyroquiz00</span></div><div class="ln sk"><span class="tag">直向</span><span>screenOrientation="portrait"</span></div><div class="ln co"><span class="tag">素材</span><span>drawable/logo.png、assets/Questions.json</span></div></div>
+</header>
+
+<div class="timeline">
+  <h2>這堂的 50 分鐘</h2>
+  <div class="tl"><div class="t1" style="flex:5"><b>複習</b><small>0–5 分</small></div><div class="t2" style="flex:15"><b>觀念</b><small>5–20 分</small></div><div class="t3" style="flex:20"><b>跟著做</b><small>20–40 分</small></div><div class="t4" style="flex:10"><b>練習</b><small>40–50 分</small></div></div>
+  <p class="tl-note">複習：第 19 堂的 BigButton 怎麼讓呼叫的人決定點擊行為？</p>
+</div>
+
+<section id="goals">
+  <div class="sh"><h2>學習目標</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">這堂結束時</span>
+  <p></p></div>
+  <ul class="goals"><li>能依題本設定 App 名稱與 Package name</li><li>會在 AndroidManifest 鎖定直向</li><li>會建立 assets 資料夾並放入 Questions.json</li><li>知道 GyroQuiz 有哪 4 個頁面與檔案規劃</li></ul>
+</section><section id="learn">
+  <div class="sh"><h2>觀念講解</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">慢慢讀</span>
+  <p></p></div>
+  <div class="doc"><article class="dsec"><h3><span class="dn">1</span>從這堂開始做 GyroQuiz</h3><p>GyroQuiz 是第 56 屆分區賽 Module1 的題目：用陀螺儀控制游標回答選擇題。接下來 32 堂會一步一步把它做完。最後的 App 有 4 個頁面：</p><div class="tbl"><table class="plain"><thead><tr><th>頁面</th><th>內容</th></tr></thead><tbody><tr><td>首頁</td><td>Logo、標題、新遊戲、遊玩紀錄</td></tr><tr><td>答題頁</td><td>題號、進度條、時間、題目、4 個彩色選項、陀螺儀游標</td></tr><tr><td>結算頁</td><td>答對、錯誤、時長、結束時間、再玩一次、回首頁</td></tr><tr><td>遊玩紀錄頁</td><td>從 SQLite 讀出的每一局成績</td></tr></tbody></table></div></article><article class="dsec"><h3><span class="dn">2</span>開場 4 件事</h3><p>比賽一開始就要做好，做錯會直接扣分：</p><div class="tbl"><table class="plain"><thead><tr><th>項目</th><th>題本要求</th><th>怎麼做</th><th>錯了扣</th></tr></thead><tbody><tr><td>App 名稱</td><td>QXX（XX 是選手編號）</td><td>New Project 的 Name 填 Q05</td><td>1 分</td></tr><tr><td>Package name</td><td>tw.mad08.gyroquizXX</td><td>New Project 的 Package name</td><td>1 分</td></tr><tr><td>直向</td><td>畫面固定直向</td><td>AndroidManifest.xml 加一行</td><td>—</td></tr><tr><td>素材</td><td>logo.png、Questions.json</td><td>放進 drawable 與 assets</td><td>整個功能做不出來</td></tr></tbody></table></div><div class="call note"><b class="t">補充</b><div>講義一律用選手編號 00：App 名稱 <code>Q00</code>、Package name <code>tw.mad08.gyroquiz00</code>。練習時換成自己的編號也可以。</div></div></article><article class="dsec"><h3><span class="dn">3</span>鎖定直向</h3><p>打開 <code>app/manifests/AndroidManifest.xml</code>，在 <code>&lt;activity</code> 那一段加上 <code>android:screenOrientation="portrait"</code>：</p><div class="file">AndroidManifest.xml（只加一行）</div><pre class="code"><code data-lang="xml">        &lt;activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Q00"&gt;</code></pre><div class="call tip"><b class="t">小技巧</b><div>加了之後 Android Studio 可能會出現黃色提示（建議不要鎖方向），比賽題本要求鎖定，忽略它即可。</div></div></article><article class="dsec"><h3><span class="dn">4</span>assets 資料夾</h3><p>圖片放 drawable，但 Questions.json 是「原封不動要讀出來的檔案」，要放在 <b>assets</b>。新專案預設沒有這個資料夾：</p><ol><li>左邊專案視窗在 <code>app</code> 上按右鍵 → <b>New → Folder → Assets Folder</b>。</li><li>直接按 Finish。會出現 <code>app/src/main/assets</code>。</li><li>把 Questions.json 複製貼上到 assets。</li></ol><div class="call warn"><b class="t">注意</b><div>檔名大小寫要和程式一致。題目給的是 <code>Questions.json</code>（Q 大寫），之後程式也要寫 <code>"Questions.json"</code>。</div></div></article><article class="dsec"><h3><span class="dn">5</span>檔案規劃</h3><p>一個檔案放一個頁面，找東西比較快。完成時的專案會長這樣（今天只建前兩個）：</p><div class="file">完成時的檔案</div><pre class="code"><code data-lang="text">tw.mad08.gyroquiz00
+├─ MainActivity.kt     setContent → GyroQuizApp()
+├─ App.kt              換頁（第 22 堂）
+├─ HomeScreen.kt       首頁（第 21 堂）
+├─ Common.kt           共用的返回列（第 23 堂）
+├─ QuizScreen.kt       答題頁
+├─ ResultScreen.kt     結算頁
+├─ RecordsScreen.kt    遊玩紀錄頁
+├─ Question.kt         題目與讀檔
+├─ Formats.kt          時間格式
+├─ QuizLogic.kt        計算用的小函式
+└─ RecordDb.kt         SQLite</code></pre></article><article class="dsec"><h3><span class="dn">6</span>MainActivity 只留一行畫面</h3><p>範本的主題函式名稱會依專案名稱產生：Name 填 Q00，主題就叫 <code>Q00Theme</code>。我們保留它，裡面只呼叫 GyroQuizApp：</p><div class="file">MainActivity.kt</div><pre class="code"><code data-lang="kotlin">package tw.mad08.gyroquiz00
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import tw.mad08.gyroquiz00.ui.theme.Q00Theme
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
+        setContent {
+            Q00Theme {
+                GyroQuizApp()
+            }
+        }
+    }
+}</code></pre><p>GyroQuizApp 還不存在，所以先建立 App.kt，暫時只顯示一行字：</p><div class="file">App.kt（暫時版本）</div><pre class="code"><code data-lang="kotlin">package tw.mad08.gyroquiz00
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+
+@Composable
+fun GyroQuizApp() {
+    Surface(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
+        Text("GyroQuiz 準備中")
+    }
+}</code></pre></article></div>
+</section><section id="follow">
+  <div class="sh"><h2>跟著做</h2><span class="pill" style="background:var(--coral-soft);color:var(--coral)">一步一步</span>
+  <p>每一步做完都執行一次，確認結果和講義一樣再往下。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>準備素材</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>從教練提供的資料夾（雲端「Module1 › media」）複製 <code>logo.png</code> 和 <code>Questions.json</code> 到桌面。</p>
+<label class="done"><input type="checkbox" id="ex1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>建立專案</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>New Project → Empty Activity，Name <code>Q00</code>，Package name <code>tw.mad08.gyroquiz00</code>。等 Gradle 跑完。</p><div class="see"><b>完成後</b>MainActivity.kt 裡的主題叫 Q00Theme。</div>
+<label class="done"><input type="checkbox" id="ex2"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="3">
+<div class="ex-top"><span class="exn">03</span><div class="ex-title"><h3>鎖定直向</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>照講義在 AndroidManifest.xml 加 screenOrientation。</p>
+<label class="done"><input type="checkbox" id="ex3"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="4">
+<div class="ex-top"><span class="exn">04</span><div class="ex-title"><h3>放 logo</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>把 logo.png 貼到 res/drawable。</p>
+<label class="done"><input type="checkbox" id="ex4"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="5">
+<div class="ex-top"><span class="exn">05</span><div class="ex-title"><h3>建 assets 放題目</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>建立 Assets Folder，把 Questions.json 貼進去。在 Android Studio 點兩下打開它，看一下內容（第 25 堂會詳細解讀）。</p>
+<label class="done"><input type="checkbox" id="ex5"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="6">
+<div class="ex-top"><span class="exn">06</span><div class="ex-title"><h3>MainActivity 與 App.kt</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>把 MainActivity.kt 換成講義的版本，新增 App.kt。Run。</p><p>在模擬器旋轉畫面（模擬器右側工具列的旋轉按鈕），確認畫面不會跟著轉。</p><div class="see"><b>完成後</b>畫面顯示 GyroQuiz 準備中，旋轉模擬器時 App 維持直向。</div>
+<label class="done"><input type="checkbox" id="ex6"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="pit">
+  <div class="sh"><h2>常見錯誤</h2><span class="pill" style="background:var(--sun-soft);color:var(--ink)">先看過</span>
+  <p>遇到問題先對照這張表。</p></div>
+  <div class="tbl"><table class="pit"><thead><tr><th>現象</th><th>原因</th><th>怎麼修</th></tr></thead><tbody><tr><td>Q00Theme 紅字</td><td>Name 不是 Q00，主題名稱不同</td><td>看 ui/theme/Theme.kt 裡的函式名稱，照著改</td></tr><tr><td>找不到 Assets Folder 選項</td><td>右鍵點錯位置</td><td>在 app 上按右鍵</td></tr><tr><td>模擬器旋轉後畫面也轉了</td><td>manifest 改錯 activity 或沒存檔</td><td>確認加在 <activity 那段</td></tr><tr><td>logo 檔名錯誤導致整個專案編譯失敗</td><td>檔名有大寫或空白</td><td>改成 logo.png</td></tr></tbody></table></div>
+</section><section id="practice">
+  <div class="sh"><h2>小練習</h2><span class="pill" style="background:var(--dart-soft);color:var(--dart)">自己寫</span>
+  <p>先自己寫，寫完再請教練對答案。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>換成自己的編號</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>不看講義，用自己的選手編號（例如 07）再建一次專案：App 名稱 Q07、Package name tw.mad08.gyroquiz07，完成開場 4 件事。計時，目標 5 分鐘內。</p>
+<label class="done"><input type="checkbox" id="pr1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>檢查表</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>在模擬器桌面確認 App 名稱是 Q07；在 Project 檢視確認 assets 和 drawable 的檔案位置。</p>
+<label class="done"><input type="checkbox" id="pr2"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="sum">
+  <div class="sh"><h2>重點整理</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">帶回家</span>
+  <p></p></div>
+  <div class="cards"><article class="kcard"><h3>開場 4 件事</h3><pre class="code"><code data-lang="text">Name：QXX
+Package：tw.mad08.gyroquizXX
+manifest：screenOrientation="portrait"
+logo.png → drawable，Questions.json → assets</code></pre></article><article class="kcard"><h3>MainActivity</h3><pre class="code"><code data-lang="kotlin">setContent {
+    Q00Theme { GyroQuizApp() }
+}</code></pre></article><article class="kcard"><h3>assets</h3><pre class="code"><code data-lang="text">app 右鍵 → New → Folder
+→ Assets Folder</code></pre></article></div>
+</section><section id="coach">
+  <div class="sh"><h2>教練解答</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">需要密碼</span>
+  <p></p></div>
+  <div class="coach" id="coachBox">
+<p class="lock">🔒 教練解答（需要密碼）。解開後同一個分頁的其他堂也會自動解開，關閉分頁就會鎖回去。</p>
+<form id="coachForm"><input type="password" id="coachPw" placeholder="輸入教練密碼" autocomplete="current-password" aria-label="教練密碼"><button type="submit">解鎖</button><span class="msg" id="coachMsg"></span></form>
+<div class="body" id="coachBody" hidden></div>
+<script type="application/octet-stream" id="coachData">3wllUb5yxM8IWMr48cncsQ==.OhnhJANfPF3ob7hS.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</script>
+</div>
+</section>
+
+<div class="pager"><a href="lesson19.html"><small>上一堂</small>第 19 堂 把畫面拆成函式</a><a class="nx" href="lesson21.html"><small>下一堂</small>第 21 堂 首頁</a></div>
+<footer>Android Compose 入門・第 20 堂 / 共 51 堂</footer>
+</div>
+
+<script>
+(function(){
+  var KW=/^(fun|val|var|return|if|else|when|for|in|until|downTo|step|while|do|repeat|class|data|enum|object|true|false|null|is|as|import|package|override|private|set|get|const|it|by|super|this|try|catch|finally|throw|break|continue|lateinit|vararg)$/;
+  var CS=/^(int|float|double|bool|string|char|void|var|new|return|if|else|switch|case|default|for|foreach|in|while|do|class|struct|public|private|static|using|namespace|true|false|null|this|break|continue|const|enum|out|ref|readonly)$/;
+  var TY=/^(Int|Long|Float|Double|Boolean|String|Char|Unit|List|MutableList|Array|IntArray|Map|Set|Pair|Any|Modifier|Color|Composable|Screen|Phase|Question|GameResult|RecordDb|Context|Bundle|Offset|Size|Console|Math|Random)$/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')|(@?[A-Za-z_]\w*)|(\b\d+(?:\.\d+)?[fL]?\b)/g;
+  function hl(root){
+    root.querySelectorAll('code[data-lang]').forEach(function(el){
+      if(el.getAttribute('data-done'))return; el.setAttribute('data-done','1');
+      var lang=el.getAttribute('data-lang');
+      var src=el.textContent,out='',last=0,m;
+      re.lastIndex=0;
+      while((m=re.exec(src))){
+        out+=esc(src.slice(last,m.index));
+        var t=m[0],cls='';
+        if(m[1])cls='c';else if(m[2])cls='s';else if(m[4])cls='n';
+        else if(m[3]&&(lang==='kotlin'||lang==='csharp')){var w=t.replace('@','');if(t.charAt(0)==='@')cls='t';else if((lang==='kotlin'?KW:CS).test(w))cls='k';else if(TY.test(w))cls='t';}
+        out+=cls?'<span class="tk-'+cls+'">'+esc(t)+'</span>':esc(t);
+        last=re.lastIndex;
+      }
+      out+=esc(src.slice(last));el.innerHTML=out;
+    });
+  }
+  hl(document);
+  var KEY='asc-l20-progress';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){state={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var prog=document.getElementById('prog');
+  var cardsEl=document.querySelectorAll('.ex');
+  function refresh(){
+    var n=0;
+    cardsEl.forEach(function(card){var cb=card.querySelector('input');var on=cb.checked;card.classList.toggle('is-done',on);if(on)n++;});
+    if(prog){if(!cardsEl.length)prog.style.display='none';else prog.textContent='完成 '+n+' / '+cardsEl.length;}
+  }
+  document.querySelectorAll('input[type=checkbox]:not(.sc)').forEach(function(cb){
+    if(state[cb.id])cb.checked=true;
+    cb.addEventListener('change',function(){state[cb.id]=cb.checked;save();refresh();});
+  });
+  refresh();
+  // ---------- 教練解答 ----------
+  var data=document.getElementById('coachData'); if(!data) return;
+  var form=document.getElementById('coachForm'), pw=document.getElementById('coachPw'), msg=document.getElementById('coachMsg'), body=document.getElementById('coachBody');
+  function b64(s){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function unlock(p,quiet){
+    if(!(window.crypto&&crypto.subtle)){msg.textContent='這個瀏覽器不支援解密，請用 Chrome 或 Edge 開啟';return;}
+    var parts=data.textContent.trim().split('.');
+    var enc=new TextEncoder();
+    crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveKey']).then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(parts[0]),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    }).then(function(key){
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:b64(parts[1])},key,b64(parts[2]));
+    }).then(function(buf){
+      body.innerHTML='<div class="bar2"><button type="button" id="coachLock">鎖回去</button></div>'+new TextDecoder().decode(buf);
+      body.hidden=false; form.hidden=true; msg.textContent='';
+      document.querySelector('#coachBox .lock').textContent='🔓 教練解答';
+      try{sessionStorage.setItem('asc-coach',p);}catch(e){}
+      hl(body);
+      document.getElementById('coachLock').addEventListener('click',function(){try{sessionStorage.removeItem('asc-coach');}catch(e){}location.reload();});
+    }).catch(function(){ if(!quiet) msg.textContent='密碼錯誤'; });
+  }
+  form.addEventListener('submit',function(e){e.preventDefault();unlock(pw.value,false);});
+  try{var saved=sessionStorage.getItem('asc-coach'); if(saved) unlock(saved,true);}catch(e){}
+})();
+</script>
+
+</body></html>

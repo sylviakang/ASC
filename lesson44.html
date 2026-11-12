@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Android Compose 入門 第 44 堂</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a bright "training camp" handout. Colour-coded stations (concepts, drills, checklist, homework),
+   Kotlin always violet, C# always sky blue, one energetic coral for progress. */
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --ink:#1B2233; --muted:#5A6478; --line:#DCE3EE;
+  --dart:#00A396; --dart-soft:#DDF5F2;
+  --kotlin:#7F52FF; --kotlin-soft:#EEE8FF;
+  --coral:#FF6A47; --coral-soft:#FFE6DF;
+  --sun:#FFB800; --sun-soft:#FFF3D1;
+  --sky:#2F8CEB; --sky-soft:#E0EEFD;
+  --pink:#E8458B; --pink-soft:#FCE3EE;
+  --code-bg:#1E2433; --code-ink:#E7ECF5; --c-com:#8A96AD; --c-str:#9BE38F; --c-kw:#FF9EC4; --c-num:#FFD36B; --c-type:#7FD8FF;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:8px 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.25}
+p{margin:0}
+code,pre{font-family:var(--f-mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+/* nav */
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px))}
+nav.bar .in{max-width:1040px;margin:0 auto;display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none}
+nav.bar a{flex:none;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+nav.bar a:hover{border-color:var(--ink)}
+nav.bar .prog{margin-left:auto;flex:none;font-size:14px;font-weight:700;color:var(--coral);font-variant-numeric:tabular-nums;padding-left:8px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;padding-block:40px 28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--coral)}
+.eyebrow b{background:var(--coral);color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:.04em}
+.hero h1{font-size:clamp(34px,6vw,56px);margin-top:10px}
+.hero h1 .d{color:var(--kotlin)}
+.hero .lead{margin-top:14px;color:var(--muted);max-width:34em}
+.swap{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;min-width:0}
+.swap .ln{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:14px;padding:10px 12px;border-radius:12px;overflow-x:auto}
+.swap .k{background:var(--kotlin-soft);color:var(--kotlin)}
+.swap .dd{background:var(--dart-soft);color:var(--dart)}
+.tag{flex:none;font-family:var(--f-body);font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px}
+.k .tag{background:var(--kotlin)} .dd .tag{background:var(--dart)}
+.swap .sk{background:var(--sky-soft);color:var(--sky)} .sk .tag{background:var(--sky)}
+.swap .co{background:var(--coral-soft);color:var(--coral)} .co .tag{background:var(--coral)}
+.swap .mid{justify-self:center;font-size:22px;color:var(--sun);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+/* timeline */
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.timeline h2{font-size:20px}
+.tl{display:flex;margin-top:14px;border-radius:12px;overflow:hidden;min-height:64px}
+.tl div{padding:10px 12px;color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tl b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.tl small{font-size:12px;opacity:.95;font-variant-numeric:tabular-nums}
+.tl .t1{flex:10;background:var(--sky)} .tl .t2{flex:30;background:var(--kotlin)} .tl .t3{flex:60;background:var(--dart)} .tl .t4{flex:20;background:var(--coral)}
+.tl-note{margin-top:10px;font-size:14px;color:var(--muted)}
+
+section{margin-top:56px;scroll-margin-top:72px}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sh h2{font-size:clamp(26px,4vw,34px)}
+.sh .pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 12px}
+.sh p{flex-basis:100%;color:var(--muted)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;counter-reset:s}
+.steps li{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 52px;position:relative;min-width:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--sky);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+.steps{padding:0;margin:0}
+.ic{background:var(--sky-soft);color:var(--sky);padding:1px 6px;border-radius:6px;font-size:.9em}
+
+/* code */
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px 18px;margin:0;overflow-x:auto;font-size:13.5px;line-height:1.65;tab-size:2}
+.tk-c{color:var(--c-com);font-style:italic}
+.sig .tk-k{color:var(--pink)} .sig .tk-t{color:var(--sky);font-weight:600} .sig .tk-n{color:var(--coral)} .sig .tk-s{color:var(--dart)} .tk-s{color:var(--c-str)} .tk-k{color:var(--c-kw)} .tk-n{color:var(--c-num)} .tk-t{color:var(--c-type)}
+
+/* comparison */
+.tbl{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+thead th{font-family:var(--f-display);font-weight:400;font-size:17px;text-align:left;padding:12px 14px;color:#fff}
+thead th:first-child{background:var(--ink);color:var(--bg)}
+thead .kh{background:var(--kotlin)} thead .ch{background:var(--sky)}
+tbody th{text-align:left;font-weight:500;padding:9px 14px;white-space:nowrap}
+tbody td{padding:9px 14px}
+tbody tr+tr th,tbody tr+tr td{border-top:1px solid var(--line)}
+td.ct code{color:var(--sky)} td.kt code{color:var(--kotlin);font-weight:600}
+td code{font-size:13.5px}
+tr.hot{background:var(--sun-soft)}
+.star{color:var(--sun);margin-left:6px}
+.legend{margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{background:var(--sun-soft);padding:1px 8px;border-radius:6px;color:var(--ink)}
+
+/* concepts */
+.concepts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.concept{background:var(--surface);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;border-top:6px solid var(--cc);min-width:0}
+.concept header{display:flex;gap:10px;align-items:center}
+.cnum{width:32px;height:32px;border-radius:10px;background:var(--cs);color:var(--cc);font-weight:700;display:grid;place-items:center;flex:none}
+.concept h3{font-size:21px}
+.concept p{color:var(--muted);font-size:15px}
+.c0{--cc:var(--sky);--cs:var(--sky-soft)} .c1{--cc:var(--coral);--cs:var(--coral-soft)} .c2{--cc:var(--dart);--cs:var(--dart-soft)}
+.c3{--cc:var(--sun);--cs:var(--sun-soft)} .c4{--cc:var(--kotlin);--cs:var(--kotlin-soft)} .c5{--cc:var(--pink);--cs:var(--pink-soft)}
+
+/* exercises */
+.rule{background:var(--coral-soft);border-radius:14px;padding:12px 16px;font-size:15px;margin-bottom:16px}
+.rule b{color:var(--coral)}
+.exs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ex{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .2s,background .2s}
+.ex.is-done{border-color:var(--dart);background:linear-gradient(var(--dart-soft),var(--surface) 70%)}
+.ex-top{display:flex;gap:12px;align-items:center}
+.exn{font-family:var(--f-display);font-size:28px;color:var(--coral);line-height:1;font-variant-numeric:tabular-nums}
+.ex-title{flex:1;min-width:0}
+.ex h3{font-size:19px}
+.use{font-size:12.5px;color:var(--muted)}
+.lv{display:flex;gap:3px;flex:none}
+.lv i{width:10px;height:10px;border-radius:3px;background:var(--line)}
+.lv i.on{background:var(--sun)}
+pre.sig{margin:0;background:var(--kotlin-soft);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:13px;overflow-x:auto}
+.ex p{font-size:15px}
+.io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.io>div:not(.arrow){background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.io pre{margin:2px 0 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.io pre.out{color:var(--dart);font-weight:600}
+.io-l{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.arrow{align-self:center;color:var(--coral);font-weight:700}
+.done{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;cursor:pointer;margin-top:auto;padding-top:4px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--dart);flex:none}
+.data{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:center}
+.data p{font-size:15px;color:var(--muted)}
+.tip{margin-top:14px;font-size:15px;background:var(--sun-soft);border-radius:12px;padding:10px 14px}
+
+/* checklist */
+.checks{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:15px;height:100%}
+.checks input{margin-top:4px}
+.checks input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dart)}
+
+/* homework */
+.hws{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hw{background:var(--surface);border-radius:16px;padding:16px;border:2px dashed var(--kotlin);display:flex;flex-direction:column;gap:10px;min-width:0}
+.hwn{align-self:flex-start;font-size:12.5px;font-weight:700;background:var(--kotlin);color:#fff;border-radius:999px;padding:2px 10px}
+.hw p{font-size:14.5px}
+.hio{color:var(--muted)} .hio b{color:var(--ink);font-weight:700;margin-right:4px} .hio code{color:var(--kotlin);font-size:13px}
+
+/* skeleton cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.kcard{background:var(--surface);border:2px solid var(--sun);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.kcard h3{font-size:18px}
+.kcard pre.code{font-size:12.5px;padding:12px 14px}
+
+footer{margin-top:56px;font-size:13px;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .hero,.concepts,.exs,.checks,.hws,.data,.cards{grid-template-columns:minmax(0,1fr)}
+  .tl{flex-wrap:wrap} .tl div{flex-basis:50%!important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.exs.one{grid-template-columns:minmax(0,1fr)}
+.pts{flex:none;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-soft);border-radius:999px;padding:2px 10px;max-width:45%;text-align:center}
+.see{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14.5px}
+.see b{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-right:6px}
+.ex pre.code{font-size:13px}
+.see code,.ex p code,.steps code,.tl-note code,.note code,.tip code{overflow-wrap:anywhere}
+.file{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-bottom:-4px}
+.note{margin-top:14px;font-size:15px;background:var(--sky-soft);border-radius:12px;padding:10px 14px}
+.scorebar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.scorebar span{font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.scorebar span b{color:var(--coral)}
+.tl .t5{background:var(--pink)}
+table.plain{min-width:520px}
+table.plain thead th{background:var(--ink);color:var(--bg)}
+
+.sheet{display:grid;gap:14px}
+.sgrp{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.sgrp h3{font-size:18px;display:flex;justify-content:space-between;gap:8px}
+.sgrp h3 small{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.sgrp ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.sgrp label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+.sgrp label b{margin-left:auto;flex:none;color:var(--coral);font-variant-numeric:tabular-nums}
+.sgrp input{margin-top:3px}
+.total{position:sticky;bottom:12px;margin-top:16px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:18px;font-family:var(--f-display)}
+.total b{font-size:26px;color:var(--sun);font-variant-numeric:tabular-nums}
+.total button{font:inherit;font-size:14px;background:transparent;color:var(--bg);border:1px solid var(--bg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.spec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.spec h3{font-size:19px}
+.spec ol,.spec ul{margin:0;padding-left:22px;display:grid;gap:4px;font-size:15px}
+.chg{background:var(--sun-soft);border-radius:14px;padding:12px 16px}
+.chg ol{margin:6px 0 0;padding-left:22px;display:grid;gap:4px}
+
+.goals{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.goals li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 40px;position:relative;font-size:15.5px}
+.goals li::before{content:"✓";position:absolute;left:14px;top:9px;color:var(--dart);font-weight:700}
+.doc{display:grid;gap:18px}
+.dsec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.dsec h3{font-size:21px;display:flex;gap:10px;align-items:center}
+.dsec h3 .dn{flex:none;width:30px;height:30px;border-radius:9px;background:var(--kotlin-soft);color:var(--kotlin);display:grid;place-items:center;font-size:15px;font-family:var(--f-body);font-weight:700}
+.dsec p,.dsec li{font-size:15.5px}
+.dsec ul,.dsec ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.dsec code:not(pre code),.ex p code,.goals code,.call code,td code{background:var(--bg);border-radius:5px;padding:0 5px;font-size:.92em;overflow-wrap:anywhere}
+.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.side .lab{font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+.side .cs .lab{color:var(--sky)} .side .kt .lab{color:var(--kotlin)}
+.call{border-radius:14px;padding:12px 16px;font-size:15px;display:grid;gap:6px}
+.call b.t{font-size:13px;letter-spacing:.06em}
+.call.warn{background:var(--coral-soft)} .call.warn b.t{color:var(--coral)}
+.call.tip{background:var(--sun-soft)} .call.tip b.t{color:var(--ink)}
+.call.note{background:var(--sky-soft)} .call.note b.t{color:var(--sky)}
+.out{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;white-space:pre-wrap}
+.out::before{content:"執行結果";display:block;font-family:var(--f-body);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+table.pit{min-width:560px}
+table.pit thead th{background:var(--coral);color:#fff}
+.coach{background:var(--surface);border:2px dashed var(--kotlin);border-radius:18px;padding:18px 20px}
+.coach form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.coach input[type=password]{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.coach button{font:inherit;font-weight:700;padding:8px 18px;border-radius:999px;border:0;background:var(--kotlin);color:#fff;cursor:pointer}
+.coach .msg{font-size:14px;color:var(--coral)}
+.coach .body{display:grid;gap:14px}
+.coach .body h3{font-size:19px}
+.coach .lock{font-size:14px;color:var(--muted);margin-bottom:10px}
+.coach .bar2{display:flex;justify-content:flex-end}
+.coach .bar2 button{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500;font-size:13px;padding:4px 12px}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:40px;flex-wrap:wrap}
+.pager a{flex:1 1 200px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);font-size:15px}
+.pager a small{display:block;color:var(--muted);font-size:12px}
+.pager a.nx{text-align:right}
+.home{font-size:14px;text-decoration:none}
+@media (max-width:720px){.side{grid-template-columns:minmax(0,1fr)}}
+</style>
+<style>td,th,#coachBody p,#coachBody li{overflow-wrap:anywhere}#coachBody{min-width:0}</style></head><body>
+<nav class="bar" aria-label="章節"><div class="in">
+  <a class="home" href="index.html">目錄</a><a href="#goals">目標</a><a href="#learn">觀念</a><a href="#follow">跟著做</a><a href="#pit">常見錯誤</a><a href="#practice">練習</a><a href="#sum">重點</a><a href="#coach">教練</a>
+  <span class="prog" id="prog">完成 0</span>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <div>
+    <span class="eyebrow"><b>第 44 堂</b>GyroQuiz：陀螺儀與游標</span>
+    <h1>雙擊<span class="d">校正</span></h1>
+    <p class="lead">用「基準角度」讓游標可以重新歸位：雙擊時把目前角度記成 base，公式中的 angle - base 歸零，游標回到選項區中心。學會用 pointerInput + detectTapGestures 偵測雙擊。</p>
+  </div>
+  <div class="swap" aria-label="今天學會"><div class="ln k"><span class="tag">基準</span><span>base = angle</span></div><div class="ln sk"><span class="tag">手勢</span><span>detectTapGestures</span></div><div class="ln co"><span class="tag">雙擊</span><span>onDoubleTap</span></div></div>
+</header>
+
+<div class="timeline">
+  <h2>這堂的 50 分鐘</h2>
+  <div class="tl"><div class="t1" style="flex:5"><b>複習</b><small>0–5 分</small></div><div class="t2" style="flex:15"><b>觀念</b><small>5–20 分</small></div><div class="t3" style="flex:20"><b>跟著做</b><small>20–40 分</small></div><div class="t4" style="flex:10"><b>練習</b><small>40–50 分</small></div></div>
+  <p class="tl-note">複習：為什麼游標會卡在邊界？</p>
+</div>
+
+<section id="goals">
+  <div class="sh"><h2>學習目標</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">這堂結束時</span>
+  <p></p></div>
+  <ul class="goals"><li>理解基準角度與校正的意義</li><li>會用 detectTapGestures 偵測雙擊</li><li>完成雙擊校正</li><li>知道 clickable 會擋住雙擊</li></ul>
+</section><section id="learn">
+  <div class="sh"><h2>觀念講解</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">慢慢讀</span>
+  <p></p></div>
+  <div class="doc"><article class="dsec"><h3><span class="dn">1</span>題本要求</h3><p><b>雙擊螢幕</b>，游標回到選項區中心，並以目前手機的姿勢當作新的「水平」。</p><p>為什麼需要？①第 39 堂說的漂移；②第 43 堂的卡邊界；③使用者可能坐著、躺著拿手機，每個人覺得「正」的角度不一樣。</p></article><article class="dsec"><h3><span class="dn">2</span>基準角度 base</h3><p>回想公式：游標 = 中心 + (<b>角度 - 基準</b>) × 靈敏度。之前基準一直是 0。</p><p>雙擊時，把基準設成「現在的角度」：</p><pre class="code"><code data-lang="kotlin">baseX = angleX
+baseY = angleY</code></pre><p>那一瞬間 angle - base = 0 → 游標回到中心。之後再從這個姿勢開始傾斜，游標從中心開始移動。</p><div class="tbl"><table class="plain"><thead><tr><th>時間</th><th>angleY</th><th>baseY</th><th>angleY - baseY</th><th>游標</th></tr></thead><tbody><tr><td>開始</td><td>0</td><td>0</td><td>0</td><td>中心</td></tr><tr><td>往右傾很多</td><td>0.8</td><td>0</td><td>0.8</td><td>卡在右邊</td></tr><tr><td>雙擊</td><td>0.8</td><td>0.8</td><td>0</td><td>回中心</td></tr><tr><td>往左回 0.1</td><td>0.7</td><td>0.8</td><td>-0.1</td><td>中心偏左 80px</td></tr></tbody></table></div><div class="call note"><b class="t">補充</b><div>我們不把 angle 歸零，而是記住 base。兩種都可以，但 angle 是在感測器的 listener 裡改的，從另一個地方歸零容易和 listener 搶著改；記 base 比較單純。</div></div></article><article class="dsec"><h3><span class="dn">3</span>偵測雙擊：pointerInput + detectTapGestures</h3><pre class="code"><code data-lang="kotlin">Modifier.pointerInput(Unit) {
+    detectTapGestures(onDoubleTap = {
+        // 雙擊時做的事
+    })
+}</code></pre><ul><li><code>pointerInput</code>：處理觸控的進階 Modifier。</li><li><code>detectTapGestures</code>：可以分辨單擊 onTap、雙擊 onDoubleTap、長按 onLongPress。</li><li>我們只需要 onDoubleTap。</li></ul><div class="side"><div class="cs"><div class="lab">WinForms</div><pre class="code"><code data-lang="csharp">this.DoubleClick += (s, e) =&gt; {
+    baseX = angleX;
+    baseY = angleY;
+};</code></pre></div><div class="kt"><div class="lab">Compose</div><pre class="code"><code data-lang="kotlin">.pointerInput(Unit) {
+    detectTapGestures(onDoubleTap = {
+        baseX = angleX; baseY = angleY })
+}</code></pre></div></div><p>加在<b>外層 Box</b>，整個畫面任何地方雙擊都有效。</p><div class="call warn"><b class="t">注意</b><div>選項 Box 上還有 clickable（點選作答）。在選項上雙擊時，clickable 會先把點擊吃掉，外層收不到雙擊。今天先在<b>題目或上方空白處</b>雙擊測試；第 46 堂改成停留選答後會把 clickable 拿掉，那時整個畫面都能雙擊。</div></div></article><article class="dsec"><h3><span class="dn">4</span>F 單元完成</h3><p>到這裡游標已經能：跟著傾斜移動、不超出選項區、雙擊回中心。下一單元讓游標「停留 3 秒選答」，取代手指點選。請備份專案。</p></article></div>
+</section><section id="follow">
+  <div class="sh"><h2>跟著做</h2><span class="pill" style="background:var(--coral-soft);color:var(--coral)">一步一步</span>
+  <p>每一步做完都執行一次，確認結果和講義一樣再往下。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>加 base</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>加 baseX、baseY，cursorPos 的第三個參數改成 baseY / baseX。</p>
+<label class="done"><input type="checkbox" id="ex1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>雙擊</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>外層 Box 加 pointerInput + detectTapGestures。</p>
+<label class="done"><input type="checkbox" id="ex2"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="3">
+<div class="ex-top"><span class="exn">03</span><div class="ex-title"><h3>測試校正</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>用 Virtual sensors 把游標拖到右下角，在題目文字上雙擊。</p><div class="see"><b>完成後</b>游標立刻回到選項區中心。</div>
+<label class="done"><input type="checkbox" id="ex3"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="4">
+<div class="ex-top"><span class="exn">04</span><div class="ex-title"><h3>解決卡邊界</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>重做第 43 堂的卡邊界實驗，卡住後雙擊再往回傾。</p><div class="see"><b>完成後</b>校正後往回傾，游標馬上移動。</div>
+<label class="done"><input type="checkbox" id="ex4"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="pit">
+  <div class="sh"><h2>常見錯誤</h2><span class="pill" style="background:var(--sun-soft);color:var(--ink)">先看過</span>
+  <p>遇到問題先對照這張表。</p></div>
+  <div class="tbl"><table class="pit"><thead><tr><th>現象</th><th>原因</th><th>怎麼修</th></tr></thead><tbody><tr><td>雙擊沒反應</td><td>在選項上雙擊（被 clickable 吃掉）</td><td>暫時在題目或空白處雙擊</td></tr><tr><td>游標沒回中心</td><td>只改了 base，cursorPos 還傳 0f</td><td>第三個參數用 baseY / baseX</td></tr><tr><td>x、y 校正錯位</td><td>baseX 用在 cursorX</td><td>cursorX 用 angleY 和 baseY</td></tr><tr><td>pointerInput 紅字</td><td>import</td><td>androidx.compose.ui.input.pointer.pointerInput</td></tr></tbody></table></div>
+</section><section id="practice">
+  <div class="sh"><h2>小練習</h2><span class="pill" style="background:var(--dart-soft);color:var(--dart)">自己寫</span>
+  <p>先自己寫，寫完再請教練對答案。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>長按也校正</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>加 onLongPress，讓長按也能校正（做完可以保留）。</p>
+<label class="done"><input type="checkbox" id="pr1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>校正提示</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>雙擊時顯示 Toast「已校正」。</p>
+<label class="done"><input type="checkbox" id="pr2"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="sum">
+  <div class="sh"><h2>重點整理</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">帶回家</span>
+  <p></p></div>
+  <div class="cards"><article class="kcard"><h3>基準</h3><pre class="code"><code data-lang="text">游標 = 中心 + (angle - base) × k</code></pre></article><article class="kcard"><h3>校正</h3><pre class="code"><code data-lang="kotlin">baseX = angleX
+baseY = angleY</code></pre></article><article class="kcard"><h3>雙擊</h3><pre class="code"><code data-lang="kotlin">.pointerInput(Unit) {
+  detectTapGestures(onDoubleTap = { … }) }</code></pre></article></div>
+</section><section id="coach">
+  <div class="sh"><h2>教練解答</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">需要密碼</span>
+  <p></p></div>
+  <div class="coach" id="coachBox">
+<p class="lock">🔒 教練解答（需要密碼）。解開後同一個分頁的其他堂也會自動解開，關閉分頁就會鎖回去。</p>
+<form id="coachForm"><input type="password" id="coachPw" placeholder="輸入教練密碼" autocomplete="current-password" aria-label="教練密碼"><button type="submit">解鎖</button><span class="msg" id="coachMsg"></span></form>
+<div class="body" id="coachBody" hidden></div>
+<script type="application/octet-stream" id="coachData">e+WOjPsScOzGw3l5es7OkQ==.iHw/lK7NqXa+bzuJ.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</script>
+</div>
+</section>
+
+<div class="pager"><a href="lesson43.html"><small>上一堂</small>第 43 堂 邊界限制</a><a class="nx" href="lesson45.html"><small>下一堂</small>第 45 堂 游標在哪個選項</a></div>
+<footer>Android Compose 入門・第 44 堂 / 共 51 堂</footer>
+</div>
+
+<script>
+(function(){
+  var KW=/^(fun|val|var|return|if|else|when|for|in|until|downTo|step|while|do|repeat|class|data|enum|object|true|false|null|is|as|import|package|override|private|set|get|const|it|by|super|this|try|catch|finally|throw|break|continue|lateinit|vararg)$/;
+  var CS=/^(int|float|double|bool|string|char|void|var|new|return|if|else|switch|case|default|for|foreach|in|while|do|class|struct|public|private|static|using|namespace|true|false|null|this|break|continue|const|enum|out|ref|readonly)$/;
+  var TY=/^(Int|Long|Float|Double|Boolean|String|Char|Unit|List|MutableList|Array|IntArray|Map|Set|Pair|Any|Modifier|Color|Composable|Screen|Phase|Question|GameResult|RecordDb|Context|Bundle|Offset|Size|Console|Math|Random)$/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')|(@?[A-Za-z_]\w*)|(\b\d+(?:\.\d+)?[fL]?\b)/g;
+  function hl(root){
+    root.querySelectorAll('code[data-lang]').forEach(function(el){
+      if(el.getAttribute('data-done'))return; el.setAttribute('data-done','1');
+      var lang=el.getAttribute('data-lang');
+      var src=el.textContent,out='',last=0,m;
+      re.lastIndex=0;
+      while((m=re.exec(src))){
+        out+=esc(src.slice(last,m.index));
+        var t=m[0],cls='';
+        if(m[1])cls='c';else if(m[2])cls='s';else if(m[4])cls='n';
+        else if(m[3]&&(lang==='kotlin'||lang==='csharp')){var w=t.replace('@','');if(t.charAt(0)==='@')cls='t';else if((lang==='kotlin'?KW:CS).test(w))cls='k';else if(TY.test(w))cls='t';}
+        out+=cls?'<span class="tk-'+cls+'">'+esc(t)+'</span>':esc(t);
+        last=re.lastIndex;
+      }
+      out+=esc(src.slice(last));el.innerHTML=out;
+    });
+  }
+  hl(document);
+  var KEY='asc-l44-progress';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){state={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var prog=document.getElementById('prog');
+  var cardsEl=document.querySelectorAll('.ex');
+  function refresh(){
+    var n=0;
+    cardsEl.forEach(function(card){var cb=card.querySelector('input');var on=cb.checked;card.classList.toggle('is-done',on);if(on)n++;});
+    if(prog){if(!cardsEl.length)prog.style.display='none';else prog.textContent='完成 '+n+' / '+cardsEl.length;}
+  }
+  document.querySelectorAll('input[type=checkbox]:not(.sc)').forEach(function(cb){
+    if(state[cb.id])cb.checked=true;
+    cb.addEventListener('change',function(){state[cb.id]=cb.checked;save();refresh();});
+  });
+  refresh();
+  // ---------- 教練解答 ----------
+  var data=document.getElementById('coachData'); if(!data) return;
+  var form=document.getElementById('coachForm'), pw=document.getElementById('coachPw'), msg=document.getElementById('coachMsg'), body=document.getElementById('coachBody');
+  function b64(s){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function unlock(p,quiet){
+    if(!(window.crypto&&crypto.subtle)){msg.textContent='這個瀏覽器不支援解密，請用 Chrome 或 Edge 開啟';return;}
+    var parts=data.textContent.trim().split('.');
+    var enc=new TextEncoder();
+    crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveKey']).then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(parts[0]),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    }).then(function(key){
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:b64(parts[1])},key,b64(parts[2]));
+    }).then(function(buf){
+      body.innerHTML='<div class="bar2"><button type="button" id="coachLock">鎖回去</button></div>'+new TextDecoder().decode(buf);
+      body.hidden=false; form.hidden=true; msg.textContent='';
+      document.querySelector('#coachBox .lock').textContent='🔓 教練解答';
+      try{sessionStorage.setItem('asc-coach',p);}catch(e){}
+      hl(body);
+      document.getElementById('coachLock').addEventListener('click',function(){try{sessionStorage.removeItem('asc-coach');}catch(e){}location.reload();});
+    }).catch(function(){ if(!quiet) msg.textContent='密碼錯誤'; });
+  }
+  form.addEventListener('submit',function(e){e.preventDefault();unlock(pw.value,false);});
+  try{var saved=sessionStorage.getItem('asc-coach'); if(saved) unlock(saved,true);}catch(e){}
+})();
+</script>
+
+</body></html>

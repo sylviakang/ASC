@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Android Compose 入門 第 39 堂</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a bright "training camp" handout. Colour-coded stations (concepts, drills, checklist, homework),
+   Kotlin always violet, C# always sky blue, one energetic coral for progress. */
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --ink:#1B2233; --muted:#5A6478; --line:#DCE3EE;
+  --dart:#00A396; --dart-soft:#DDF5F2;
+  --kotlin:#7F52FF; --kotlin-soft:#EEE8FF;
+  --coral:#FF6A47; --coral-soft:#FFE6DF;
+  --sun:#FFB800; --sun-soft:#FFF3D1;
+  --sky:#2F8CEB; --sky-soft:#E0EEFD;
+  --pink:#E8458B; --pink-soft:#FCE3EE;
+  --code-bg:#1E2433; --code-ink:#E7ECF5; --c-com:#8A96AD; --c-str:#9BE38F; --c-kw:#FF9EC4; --c-num:#FFD36B; --c-type:#7FD8FF;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:8px 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.25}
+p{margin:0}
+code,pre{font-family:var(--f-mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+/* nav */
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px))}
+nav.bar .in{max-width:1040px;margin:0 auto;display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none}
+nav.bar a{flex:none;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+nav.bar a:hover{border-color:var(--ink)}
+nav.bar .prog{margin-left:auto;flex:none;font-size:14px;font-weight:700;color:var(--coral);font-variant-numeric:tabular-nums;padding-left:8px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;padding-block:40px 28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--coral)}
+.eyebrow b{background:var(--coral);color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:.04em}
+.hero h1{font-size:clamp(34px,6vw,56px);margin-top:10px}
+.hero h1 .d{color:var(--kotlin)}
+.hero .lead{margin-top:14px;color:var(--muted);max-width:34em}
+.swap{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;min-width:0}
+.swap .ln{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:14px;padding:10px 12px;border-radius:12px;overflow-x:auto}
+.swap .k{background:var(--kotlin-soft);color:var(--kotlin)}
+.swap .dd{background:var(--dart-soft);color:var(--dart)}
+.tag{flex:none;font-family:var(--f-body);font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px}
+.k .tag{background:var(--kotlin)} .dd .tag{background:var(--dart)}
+.swap .sk{background:var(--sky-soft);color:var(--sky)} .sk .tag{background:var(--sky)}
+.swap .co{background:var(--coral-soft);color:var(--coral)} .co .tag{background:var(--coral)}
+.swap .mid{justify-self:center;font-size:22px;color:var(--sun);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+/* timeline */
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.timeline h2{font-size:20px}
+.tl{display:flex;margin-top:14px;border-radius:12px;overflow:hidden;min-height:64px}
+.tl div{padding:10px 12px;color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tl b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.tl small{font-size:12px;opacity:.95;font-variant-numeric:tabular-nums}
+.tl .t1{flex:10;background:var(--sky)} .tl .t2{flex:30;background:var(--kotlin)} .tl .t3{flex:60;background:var(--dart)} .tl .t4{flex:20;background:var(--coral)}
+.tl-note{margin-top:10px;font-size:14px;color:var(--muted)}
+
+section{margin-top:56px;scroll-margin-top:72px}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sh h2{font-size:clamp(26px,4vw,34px)}
+.sh .pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 12px}
+.sh p{flex-basis:100%;color:var(--muted)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;counter-reset:s}
+.steps li{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 52px;position:relative;min-width:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--sky);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+.steps{padding:0;margin:0}
+.ic{background:var(--sky-soft);color:var(--sky);padding:1px 6px;border-radius:6px;font-size:.9em}
+
+/* code */
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px 18px;margin:0;overflow-x:auto;font-size:13.5px;line-height:1.65;tab-size:2}
+.tk-c{color:var(--c-com);font-style:italic}
+.sig .tk-k{color:var(--pink)} .sig .tk-t{color:var(--sky);font-weight:600} .sig .tk-n{color:var(--coral)} .sig .tk-s{color:var(--dart)} .tk-s{color:var(--c-str)} .tk-k{color:var(--c-kw)} .tk-n{color:var(--c-num)} .tk-t{color:var(--c-type)}
+
+/* comparison */
+.tbl{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+thead th{font-family:var(--f-display);font-weight:400;font-size:17px;text-align:left;padding:12px 14px;color:#fff}
+thead th:first-child{background:var(--ink);color:var(--bg)}
+thead .kh{background:var(--kotlin)} thead .ch{background:var(--sky)}
+tbody th{text-align:left;font-weight:500;padding:9px 14px;white-space:nowrap}
+tbody td{padding:9px 14px}
+tbody tr+tr th,tbody tr+tr td{border-top:1px solid var(--line)}
+td.ct code{color:var(--sky)} td.kt code{color:var(--kotlin);font-weight:600}
+td code{font-size:13.5px}
+tr.hot{background:var(--sun-soft)}
+.star{color:var(--sun);margin-left:6px}
+.legend{margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{background:var(--sun-soft);padding:1px 8px;border-radius:6px;color:var(--ink)}
+
+/* concepts */
+.concepts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.concept{background:var(--surface);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;border-top:6px solid var(--cc);min-width:0}
+.concept header{display:flex;gap:10px;align-items:center}
+.cnum{width:32px;height:32px;border-radius:10px;background:var(--cs);color:var(--cc);font-weight:700;display:grid;place-items:center;flex:none}
+.concept h3{font-size:21px}
+.concept p{color:var(--muted);font-size:15px}
+.c0{--cc:var(--sky);--cs:var(--sky-soft)} .c1{--cc:var(--coral);--cs:var(--coral-soft)} .c2{--cc:var(--dart);--cs:var(--dart-soft)}
+.c3{--cc:var(--sun);--cs:var(--sun-soft)} .c4{--cc:var(--kotlin);--cs:var(--kotlin-soft)} .c5{--cc:var(--pink);--cs:var(--pink-soft)}
+
+/* exercises */
+.rule{background:var(--coral-soft);border-radius:14px;padding:12px 16px;font-size:15px;margin-bottom:16px}
+.rule b{color:var(--coral)}
+.exs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ex{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .2s,background .2s}
+.ex.is-done{border-color:var(--dart);background:linear-gradient(var(--dart-soft),var(--surface) 70%)}
+.ex-top{display:flex;gap:12px;align-items:center}
+.exn{font-family:var(--f-display);font-size:28px;color:var(--coral);line-height:1;font-variant-numeric:tabular-nums}
+.ex-title{flex:1;min-width:0}
+.ex h3{font-size:19px}
+.use{font-size:12.5px;color:var(--muted)}
+.lv{display:flex;gap:3px;flex:none}
+.lv i{width:10px;height:10px;border-radius:3px;background:var(--line)}
+.lv i.on{background:var(--sun)}
+pre.sig{margin:0;background:var(--kotlin-soft);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:13px;overflow-x:auto}
+.ex p{font-size:15px}
+.io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.io>div:not(.arrow){background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.io pre{margin:2px 0 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.io pre.out{color:var(--dart);font-weight:600}
+.io-l{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.arrow{align-self:center;color:var(--coral);font-weight:700}
+.done{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;cursor:pointer;margin-top:auto;padding-top:4px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--dart);flex:none}
+.data{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:center}
+.data p{font-size:15px;color:var(--muted)}
+.tip{margin-top:14px;font-size:15px;background:var(--sun-soft);border-radius:12px;padding:10px 14px}
+
+/* checklist */
+.checks{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:15px;height:100%}
+.checks input{margin-top:4px}
+.checks input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dart)}
+
+/* homework */
+.hws{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hw{background:var(--surface);border-radius:16px;padding:16px;border:2px dashed var(--kotlin);display:flex;flex-direction:column;gap:10px;min-width:0}
+.hwn{align-self:flex-start;font-size:12.5px;font-weight:700;background:var(--kotlin);color:#fff;border-radius:999px;padding:2px 10px}
+.hw p{font-size:14.5px}
+.hio{color:var(--muted)} .hio b{color:var(--ink);font-weight:700;margin-right:4px} .hio code{color:var(--kotlin);font-size:13px}
+
+/* skeleton cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.kcard{background:var(--surface);border:2px solid var(--sun);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.kcard h3{font-size:18px}
+.kcard pre.code{font-size:12.5px;padding:12px 14px}
+
+footer{margin-top:56px;font-size:13px;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .hero,.concepts,.exs,.checks,.hws,.data,.cards{grid-template-columns:minmax(0,1fr)}
+  .tl{flex-wrap:wrap} .tl div{flex-basis:50%!important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.exs.one{grid-template-columns:minmax(0,1fr)}
+.pts{flex:none;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-soft);border-radius:999px;padding:2px 10px;max-width:45%;text-align:center}
+.see{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14.5px}
+.see b{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-right:6px}
+.ex pre.code{font-size:13px}
+.see code,.ex p code,.steps code,.tl-note code,.note code,.tip code{overflow-wrap:anywhere}
+.file{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-bottom:-4px}
+.note{margin-top:14px;font-size:15px;background:var(--sky-soft);border-radius:12px;padding:10px 14px}
+.scorebar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.scorebar span{font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.scorebar span b{color:var(--coral)}
+.tl .t5{background:var(--pink)}
+table.plain{min-width:520px}
+table.plain thead th{background:var(--ink);color:var(--bg)}
+
+.sheet{display:grid;gap:14px}
+.sgrp{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.sgrp h3{font-size:18px;display:flex;justify-content:space-between;gap:8px}
+.sgrp h3 small{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.sgrp ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.sgrp label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+.sgrp label b{margin-left:auto;flex:none;color:var(--coral);font-variant-numeric:tabular-nums}
+.sgrp input{margin-top:3px}
+.total{position:sticky;bottom:12px;margin-top:16px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:18px;font-family:var(--f-display)}
+.total b{font-size:26px;color:var(--sun);font-variant-numeric:tabular-nums}
+.total button{font:inherit;font-size:14px;background:transparent;color:var(--bg);border:1px solid var(--bg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.spec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.spec h3{font-size:19px}
+.spec ol,.spec ul{margin:0;padding-left:22px;display:grid;gap:4px;font-size:15px}
+.chg{background:var(--sun-soft);border-radius:14px;padding:12px 16px}
+.chg ol{margin:6px 0 0;padding-left:22px;display:grid;gap:4px}
+
+.goals{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.goals li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 40px;position:relative;font-size:15.5px}
+.goals li::before{content:"✓";position:absolute;left:14px;top:9px;color:var(--dart);font-weight:700}
+.doc{display:grid;gap:18px}
+.dsec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.dsec h3{font-size:21px;display:flex;gap:10px;align-items:center}
+.dsec h3 .dn{flex:none;width:30px;height:30px;border-radius:9px;background:var(--kotlin-soft);color:var(--kotlin);display:grid;place-items:center;font-size:15px;font-family:var(--f-body);font-weight:700}
+.dsec p,.dsec li{font-size:15.5px}
+.dsec ul,.dsec ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.dsec code:not(pre code),.ex p code,.goals code,.call code,td code{background:var(--bg);border-radius:5px;padding:0 5px;font-size:.92em;overflow-wrap:anywhere}
+.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.side .lab{font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+.side .cs .lab{color:var(--sky)} .side .kt .lab{color:var(--kotlin)}
+.call{border-radius:14px;padding:12px 16px;font-size:15px;display:grid;gap:6px}
+.call b.t{font-size:13px;letter-spacing:.06em}
+.call.warn{background:var(--coral-soft)} .call.warn b.t{color:var(--coral)}
+.call.tip{background:var(--sun-soft)} .call.tip b.t{color:var(--ink)}
+.call.note{background:var(--sky-soft)} .call.note b.t{color:var(--sky)}
+.out{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;white-space:pre-wrap}
+.out::before{content:"執行結果";display:block;font-family:var(--f-body);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+table.pit{min-width:560px}
+table.pit thead th{background:var(--coral);color:#fff}
+.coach{background:var(--surface);border:2px dashed var(--kotlin);border-radius:18px;padding:18px 20px}
+.coach form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.coach input[type=password]{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.coach button{font:inherit;font-weight:700;padding:8px 18px;border-radius:999px;border:0;background:var(--kotlin);color:#fff;cursor:pointer}
+.coach .msg{font-size:14px;color:var(--coral)}
+.coach .body{display:grid;gap:14px}
+.coach .body h3{font-size:19px}
+.coach .lock{font-size:14px;color:var(--muted);margin-bottom:10px}
+.coach .bar2{display:flex;justify-content:flex-end}
+.coach .bar2 button{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500;font-size:13px;padding:4px 12px}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:40px;flex-wrap:wrap}
+.pager a{flex:1 1 200px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);font-size:15px}
+.pager a small{display:block;color:var(--muted);font-size:12px}
+.pager a.nx{text-align:right}
+.home{font-size:14px;text-decoration:none}
+@media (max-width:720px){.side{grid-template-columns:minmax(0,1fr)}}
+</style>
+<style>td,th,#coachBody p,#coachBody li{overflow-wrap:anywhere}#coachBody{min-width:0}</style></head><body>
+<nav class="bar" aria-label="章節"><div class="in">
+  <a class="home" href="index.html">目錄</a><a href="#goals">目標</a><a href="#learn">觀念</a><a href="#follow">跟著做</a><a href="#pit">常見錯誤</a><a href="#practice">練習</a><a href="#sum">重點</a><a href="#coach">教練</a>
+  <span class="prog" id="prog">完成 0</span>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <div>
+    <span class="eyebrow"><b>第 39 堂</b>GyroQuiz：陀螺儀與游標</span>
+    <h1>角速度<span class="d">變角度</span></h1>
+    <p class="lead">陀螺儀只給「轉多快」，游標需要「轉了多少」。用「距離 = 速度 × 時間」的想法，把每一筆角速度乘上真正經過的秒數累加成角度，寫成可以測試的 integrate 函式，並認識漂移的問題。</p>
+  </div>
+  <div class="swap" aria-label="今天學會"><div class="ln k"><span class="tag">累加</span><span>angle + rate * dt</span></div><div class="ln sk"><span class="tag">時間</span><span>e.timestamp 奈秒</span></div><div class="ln co"><span class="tag">測試</span><span>assertEquals(…, 0.0001f)</span></div></div>
+</header>
+
+<div class="timeline">
+  <h2>這堂的 50 分鐘</h2>
+  <div class="tl"><div class="t1" style="flex:5"><b>複習</b><small>0–5 分</small></div><div class="t2" style="flex:15"><b>觀念</b><small>5–20 分</small></div><div class="t3" style="flex:20"><b>跟著做</b><small>20–40 分</small></div><div class="t4" style="flex:10"><b>練習</b><small>40–50 分</small></div></div>
+  <p class="tl-note">複習：陀螺儀 values[0]、[1] 分別是繞哪一軸？靜止時是多少？</p>
+</div>
+
+<section id="goals">
+  <div class="sh"><h2>學習目標</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">這堂結束時</span>
+  <p></p></div>
+  <ul class="goals"><li>理解角速度 × 時間 = 角度</li><li>會用 timestamp 算出 dt</li><li>會寫 integrate 與 Float 的單元測試</li><li>知道漂移是什麼</li></ul>
+</section><section id="learn">
+  <div class="sh"><h2>觀念講解</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">慢慢讀</span>
+  <p></p></div>
+  <div class="doc"><article class="dsec"><h3><span class="dn">1</span>從速度算出距離</h3><p>國中物理：<b>距離 = 速度 × 時間</b>。開車時每一小段都把「這段的速度 × 這段的時間」加起來，就是總共走了多遠。</p><p>角度也一樣：<b>轉過的角度 = 角速度 × 時間</b>。陀螺儀每秒給我們約 50 次角速度，每次都加上「角速度 × 這次和上次相隔的秒數」：</p><div class="tbl"><table class="plain"><thead><tr><th>第幾筆</th><th>角速度 rad/s</th><th>相隔秒數</th><th>這段轉了</th><th>累計角度</th></tr></thead><tbody><tr><td>1</td><td>—</td><td>—</td><td>—</td><td>0</td></tr><tr><td>2</td><td>2.0</td><td>0.02</td><td>0.04</td><td>0.04</td></tr><tr><td>3</td><td>2.0</td><td>0.02</td><td>0.04</td><td>0.08</td></tr><tr><td>4</td><td>-1.0</td><td>0.02</td><td>-0.02</td><td>0.06</td></tr></tbody></table></div><div class="call note"><b class="t">補充</b><div>這種「一小段一小段加起來」的做法，數學叫積分（integrate）。不用會微積分，記住「速度 × 時間，一直加」就好。</div></div></article><article class="dsec"><h3><span class="dn">2</span>寫成一個小函式</h3><div class="file">QuizLogic.kt</div><pre class="code"><code data-lang="kotlin">// 陀螺儀：角速度 (rad/s) × 經過秒數 = 轉過的角度
+fun integrate(angle: Float, rate: Float, dtSec: Float): Float = angle + rate * dtSec</code></pre><p>只有一行，但寫成函式有兩個好處：名字讓程式好讀；可以寫單元測試。</p><div class="file">GyroMathTest.kt</div><pre class="code"><code data-lang="kotlin">@Test
+fun integrateAngle() {
+    // 每秒轉 2 弧度，經過 0.25 秒，轉了 0.5 弧度
+    assertEquals(0.5f, integrate(0f, 2f, 0.25f), 0.0001f)
+    // 反方向轉回來
+    assertEquals(0.3f, integrate(0.5f, -0.4f, 0.5f), 0.0001f)
+}</code></pre><div class="call warn"><b class="t">注意</b><div>Float 比較要給第三個參數「容許誤差」0.0001f。小數在電腦裡有誤差，0.1f + 0.2f 不一定剛好等於 0.3f（C/C# 也一樣）。</div></div></article><article class="dsec"><h3><span class="dn">3</span>每一筆的時間：e.timestamp</h3><ul><li><code>e.timestamp</code>：這筆數值產生的時間，單位是<b>奈秒</b>（10⁻⁹ 秒），Long。</li><li>dt = (這次 - 上次) ÷ 1,000,000,000 → 秒。</li><li><code>1_000_000_000f</code>：底線只是讓數字好讀，等於 1000000000f。</li><li>第一筆沒有「上次」，所以 lastNs == 0 時只記時間、不累加。</li></ul><pre class="code"><code data-lang="kotlin">var lastNs = 0L
+…
+if (lastNs != 0L) {
+    val dt = (e.timestamp - lastNs) / 1_000_000_000f
+    angleX = integrate(angleX, e.values[0], dt)
+    angleY = integrate(angleY, e.values[1], dt)
+}
+lastNs = e.timestamp</code></pre><div class="call note"><b class="t">補充</b><div>為什麼不直接假設 dt = 0.02？因為感測器的頻率不保證固定，手機忙的時候可能隔 0.05 秒才來一筆。用真正的時間差才準，跟第 31 堂計時用 now - last 是同樣的道理。</div></div></article><article class="dsec"><h3><span class="dn">4</span>只用 x 和 y</h3><p>z 是平放原地轉圈，對游標沒有用。我們只需要 angleX（前後傾）和 angleY（左右傾）。</p></article><article class="dsec"><h3><span class="dn">5</span>完整的 GyroLab</h3><div class="file">GyroLab.kt</div><pre class="code"><code data-lang="kotlin">@Composable
+fun GyroLab() {
+    val context = LocalContext.current
+    var angleX by remember { mutableFloatStateOf(0f) }
+    var angleY by remember { mutableFloatStateOf(0f) }
+
+    DisposableEffect(Unit) {
+        val sm = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val gyro = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        var lastNs = 0L                                   // 上一筆的時間（奈秒）
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(e: SensorEvent) {
+                if (lastNs != 0L) {
+                    val dt = (e.timestamp - lastNs) / 1_000_000_000f   // 奈秒 → 秒
+                    angleX = integrate(angleX, e.values[0], dt)
+                    angleY = integrate(angleY, e.values[1], dt)
+                }
+                lastNs = e.timestamp
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        sm.registerListener(listener, gyro, SensorManager.SENSOR_DELAY_GAME)
+        onDispose { sm.unregisterListener(listener) }
+    }
+
+    Column(Modifier.fillMaxSize().padding(24.dp)) {
+        Text("角度（度）", fontSize = 24.sp)
+        Text("x = ${"%.1f".format(Math.toDegrees(angleX.toDouble()))}°", fontSize = 32.sp)
+        Text("y = ${"%.1f".format(Math.toDegrees(angleY.toDouble()))}°", fontSize = 32.sp)
+        Button(onClick = { angleX = 0f; angleY = 0f }) { Text("歸零") }
+    }
+}</code></pre><p><code>Math.toDegrees(弧度)</code> 把弧度轉成度數，方便人看。程式內部還是用弧度。</p></article><article class="dsec"><h3><span class="dn">6</span>漂移</h3><p>實體手機上，即使你把手機放回原位，角度可能不會剛好回到 0，而是慢慢偏掉。這叫<b>漂移</b>（drift）：每一筆都有一點點誤差，累加久了就變大。</p><p>解決方法是讓使用者自己校正 —— 這就是題本要求「雙擊校正」的原因（第 44 堂）。</p></article></div>
+</section><section id="follow">
+  <div class="sh"><h2>跟著做</h2><span class="pill" style="background:var(--coral-soft);color:var(--coral)">一步一步</span>
+  <p>每一步做完都執行一次，確認結果和講義一樣再往下。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>integrate 與測試</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>QuizLogic.kt 加 integrate；新增 GyroMathTest（先只寫 integrateAngle）並通過。</p>
+<label class="done"><input type="checkbox" id="ex1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>改 GyroLab</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>照講義把 GyroLab 改成顯示角度，MainActivity 暫時呼叫 GyroLab()。</p>
+<label class="done"><input type="checkbox" id="ex2"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="3">
+<div class="ex-top"><span class="exn">03</span><div class="ex-title"><h3>轉 90 度</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>在 Virtual sensors 把 Y 滑桿拖到大約 90 度再放開。</p><div class="see"><b>完成後</b>y 顯示接近 90°（可能差幾度），放開後數字停住不會回 0。</div>
+<label class="done"><input type="checkbox" id="ex3"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="4">
+<div class="ex-top"><span class="exn">04</span><div class="ex-title"><h3>轉回來</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>把滑桿拖回 0。</p><div class="see"><b>完成後</b>角度回到接近 0。</div>
+<label class="done"><input type="checkbox" id="ex4"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="5">
+<div class="ex-top"><span class="exn">05</span><div class="ex-title"><h3>換回入口</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>MainActivity 改回 GyroQuizApp()。</p>
+<label class="done"><input type="checkbox" id="ex5"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="pit">
+  <div class="sh"><h2>常見錯誤</h2><span class="pill" style="background:var(--sun-soft);color:var(--ink)">先看過</span>
+  <p>遇到問題先對照這張表。</p></div>
+  <div class="tbl"><table class="pit"><thead><tr><th>現象</th><th>原因</th><th>怎麼修</th></tr></thead><tbody><tr><td>角度一直是 0</td><td>忘了 lastNs = e.timestamp</td><td>每一筆最後都要更新 lastNs</td></tr><tr><td>角度大到不合理</td><td>dt 沒有 ÷ 10⁹</td><td>除以 1_000_000_000f</td></tr><tr><td>一開始就跳很大</td><td>第一筆就用 lastNs = 0 去算</td><td>if (lastNs != 0L)</td></tr><tr><td>assertEquals 失敗 0.5 vs 0.50000006</td><td>Float 沒給誤差</td><td>第三個參數 0.0001f</td></tr></tbody></table></div>
+</section><section id="practice">
+  <div class="sh"><h2>小練習</h2><span class="pill" style="background:var(--dart-soft);color:var(--dart)">自己寫</span>
+  <p>先自己寫，寫完再請教練對答案。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>手算</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>角速度依序是 1.0、1.0、-0.5（rad/s），每筆相隔 0.1 秒，從 0 開始，最後角度是多少弧度？約幾度？</p>
+<label class="done"><input type="checkbox" id="pr1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>再加一個測試</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>在 GyroMathTest 加一個測試：從 0 開始，用 rate = π、dt = 0.5 連續 integrate 2 次，結果應該約是 π（180 度）。</p>
+<label class="done"><input type="checkbox" id="pr2"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="sum">
+  <div class="sh"><h2>重點整理</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">帶回家</span>
+  <p></p></div>
+  <div class="cards"><article class="kcard"><h3>積分</h3><pre class="code"><code data-lang="kotlin">angle = angle + rate * dt</code></pre></article><article class="kcard"><h3>dt</h3><pre class="code"><code data-lang="kotlin">(e.timestamp - lastNs) / 1_000_000_000f</code></pre></article><article class="kcard"><h3>漂移</h3><pre class="code"><code data-lang="text">誤差會累積 → 要能校正</code></pre></article></div>
+</section><section id="coach">
+  <div class="sh"><h2>教練解答</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">需要密碼</span>
+  <p></p></div>
+  <div class="coach" id="coachBox">
+<p class="lock">🔒 教練解答（需要密碼）。解開後同一個分頁的其他堂也會自動解開，關閉分頁就會鎖回去。</p>
+<form id="coachForm"><input type="password" id="coachPw" placeholder="輸入教練密碼" autocomplete="current-password" aria-label="教練密碼"><button type="submit">解鎖</button><span class="msg" id="coachMsg"></span></form>
+<div class="body" id="coachBody" hidden></div>
+<script type="application/octet-stream" id="coachData">ity2MXxxCZHtnoAPt0J5zQ==.hfgVFoOrpaSs1M+H.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</script>
+</div>
+</section>
+
+<div class="pager"><a href="lesson38.html"><small>上一堂</small>第 38 堂 感測器入門</a><a class="nx" href="lesson40.html"><small>下一堂</small>第 40 堂 Canvas 畫游標</a></div>
+<footer>Android Compose 入門・第 39 堂 / 共 51 堂</footer>
+</div>
+
+<script>
+(function(){
+  var KW=/^(fun|val|var|return|if|else|when|for|in|until|downTo|step|while|do|repeat|class|data|enum|object|true|false|null|is|as|import|package|override|private|set|get|const|it|by|super|this|try|catch|finally|throw|break|continue|lateinit|vararg)$/;
+  var CS=/^(int|float|double|bool|string|char|void|var|new|return|if|else|switch|case|default|for|foreach|in|while|do|class|struct|public|private|static|using|namespace|true|false|null|this|break|continue|const|enum|out|ref|readonly)$/;
+  var TY=/^(Int|Long|Float|Double|Boolean|String|Char|Unit|List|MutableList|Array|IntArray|Map|Set|Pair|Any|Modifier|Color|Composable|Screen|Phase|Question|GameResult|RecordDb|Context|Bundle|Offset|Size|Console|Math|Random)$/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')|(@?[A-Za-z_]\w*)|(\b\d+(?:\.\d+)?[fL]?\b)/g;
+  function hl(root){
+    root.querySelectorAll('code[data-lang]').forEach(function(el){
+      if(el.getAttribute('data-done'))return; el.setAttribute('data-done','1');
+      var lang=el.getAttribute('data-lang');
+      var src=el.textContent,out='',last=0,m;
+      re.lastIndex=0;
+      while((m=re.exec(src))){
+        out+=esc(src.slice(last,m.index));
+        var t=m[0],cls='';
+        if(m[1])cls='c';else if(m[2])cls='s';else if(m[4])cls='n';
+        else if(m[3]&&(lang==='kotlin'||lang==='csharp')){var w=t.replace('@','');if(t.charAt(0)==='@')cls='t';else if((lang==='kotlin'?KW:CS).test(w))cls='k';else if(TY.test(w))cls='t';}
+        out+=cls?'<span class="tk-'+cls+'">'+esc(t)+'</span>':esc(t);
+        last=re.lastIndex;
+      }
+      out+=esc(src.slice(last));el.innerHTML=out;
+    });
+  }
+  hl(document);
+  var KEY='asc-l39-progress';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){state={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var prog=document.getElementById('prog');
+  var cardsEl=document.querySelectorAll('.ex');
+  function refresh(){
+    var n=0;
+    cardsEl.forEach(function(card){var cb=card.querySelector('input');var on=cb.checked;card.classList.toggle('is-done',on);if(on)n++;});
+    if(prog){if(!cardsEl.length)prog.style.display='none';else prog.textContent='完成 '+n+' / '+cardsEl.length;}
+  }
+  document.querySelectorAll('input[type=checkbox]:not(.sc)').forEach(function(cb){
+    if(state[cb.id])cb.checked=true;
+    cb.addEventListener('change',function(){state[cb.id]=cb.checked;save();refresh();});
+  });
+  refresh();
+  // ---------- 教練解答 ----------
+  var data=document.getElementById('coachData'); if(!data) return;
+  var form=document.getElementById('coachForm'), pw=document.getElementById('coachPw'), msg=document.getElementById('coachMsg'), body=document.getElementById('coachBody');
+  function b64(s){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function unlock(p,quiet){
+    if(!(window.crypto&&crypto.subtle)){msg.textContent='這個瀏覽器不支援解密，請用 Chrome 或 Edge 開啟';return;}
+    var parts=data.textContent.trim().split('.');
+    var enc=new TextEncoder();
+    crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveKey']).then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(parts[0]),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    }).then(function(key){
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:b64(parts[1])},key,b64(parts[2]));
+    }).then(function(buf){
+      body.innerHTML='<div class="bar2"><button type="button" id="coachLock">鎖回去</button></div>'+new TextDecoder().decode(buf);
+      body.hidden=false; form.hidden=true; msg.textContent='';
+      document.querySelector('#coachBox .lock').textContent='🔓 教練解答';
+      try{sessionStorage.setItem('asc-coach',p);}catch(e){}
+      hl(body);
+      document.getElementById('coachLock').addEventListener('click',function(){try{sessionStorage.removeItem('asc-coach');}catch(e){}location.reload();});
+    }).catch(function(){ if(!quiet) msg.textContent='密碼錯誤'; });
+  }
+  form.addEventListener('submit',function(e){e.preventDefault();unlock(pw.value,false);});
+  try{var saved=sessionStorage.getItem('asc-coach'); if(saved) unlock(saved,true);}catch(e){}
+})();
+</script>
+
+</body></html>

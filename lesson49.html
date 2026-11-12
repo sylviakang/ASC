@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Android Compose 入門 第 49 堂</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a bright "training camp" handout. Colour-coded stations (concepts, drills, checklist, homework),
+   Kotlin always violet, C# always sky blue, one energetic coral for progress. */
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --ink:#1B2233; --muted:#5A6478; --line:#DCE3EE;
+  --dart:#00A396; --dart-soft:#DDF5F2;
+  --kotlin:#7F52FF; --kotlin-soft:#EEE8FF;
+  --coral:#FF6A47; --coral-soft:#FFE6DF;
+  --sun:#FFB800; --sun-soft:#FFF3D1;
+  --sky:#2F8CEB; --sky-soft:#E0EEFD;
+  --pink:#E8458B; --pink-soft:#FCE3EE;
+  --code-bg:#1E2433; --code-ink:#E7ECF5; --c-com:#8A96AD; --c-str:#9BE38F; --c-kw:#FF9EC4; --c-num:#FFD36B; --c-type:#7FD8FF;
+  --f-display:"Huninn","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  --f-body:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}}
+:root[data-theme="dark"]{
+  --bg:#11151E; --surface:#1A2030; --ink:#EDF1F8; --muted:#A2ACC0; --line:#2C3447;
+  --dart:#2FD4C4; --dart-soft:#123A38; --kotlin:#A98BFF; --kotlin-soft:#2A2248;
+  --coral:#FF8466; --coral-soft:#3D221C; --sun:#FFC940; --sun-soft:#3A3014;
+  --sky:#5EA9F5; --sky-soft:#16304D; --pink:#FF6FA8; --pink-soft:#3D1C2B;
+  --code-bg:#0B0E15; color-scheme:dark;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+.wrap{max-width:1040px;margin:0 auto;padding-block:8px 64px}
+h1,h2,h3{font-family:var(--f-display);font-weight:400;text-wrap:balance;margin:0;line-height:1.25}
+p{margin:0}
+code,pre{font-family:var(--f-mono);font-variant-ligatures:none;font-feature-settings:"liga" 0,"calt" 0}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sun);outline-offset:2px;border-radius:6px}
+
+/* nav */
+nav.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:10px max(16px,env(safe-area-inset-left,0px))}
+nav.bar .in{max-width:1040px;margin:0 auto;display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none}
+nav.bar a{flex:none;text-decoration:none;color:var(--ink);font-size:14px;font-weight:500;padding:5px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+nav.bar a:hover{border-color:var(--ink)}
+nav.bar .prog{margin-left:auto;flex:none;font-size:14px;font-weight:700;color:var(--coral);font-variant-numeric:tabular-nums;padding-left:8px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:28px;align-items:center;padding-block:40px 28px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:13px;font-weight:700;letter-spacing:.08em;color:var(--coral)}
+.eyebrow b{background:var(--coral);color:#fff;border-radius:6px;padding:2px 8px;letter-spacing:.04em}
+.hero h1{font-size:clamp(34px,6vw,56px);margin-top:10px}
+.hero h1 .d{color:var(--kotlin)}
+.hero .lead{margin-top:14px;color:var(--muted);max-width:34em}
+.swap{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:18px;display:grid;gap:10px;min-width:0}
+.swap .ln{display:flex;align-items:center;gap:10px;font-family:var(--f-mono);font-size:14px;padding:10px 12px;border-radius:12px;overflow-x:auto}
+.swap .k{background:var(--kotlin-soft);color:var(--kotlin)}
+.swap .dd{background:var(--dart-soft);color:var(--dart)}
+.tag{flex:none;font-family:var(--f-body);font-size:11px;font-weight:700;color:#fff;border-radius:6px;padding:2px 7px}
+.k .tag{background:var(--kotlin)} .dd .tag{background:var(--dart)}
+.swap .sk{background:var(--sky-soft);color:var(--sky)} .sk .tag{background:var(--sky)}
+.swap .co{background:var(--coral-soft);color:var(--coral)} .co .tag{background:var(--coral)}
+.swap .mid{justify-self:center;font-size:22px;color:var(--sun);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(4px)}}
+
+/* timeline */
+.timeline{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.timeline h2{font-size:20px}
+.tl{display:flex;margin-top:14px;border-radius:12px;overflow:hidden;min-height:64px}
+.tl div{padding:10px 12px;color:#fff;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.tl b{font-family:var(--f-display);font-weight:400;font-size:16px}
+.tl small{font-size:12px;opacity:.95;font-variant-numeric:tabular-nums}
+.tl .t1{flex:10;background:var(--sky)} .tl .t2{flex:30;background:var(--kotlin)} .tl .t3{flex:60;background:var(--dart)} .tl .t4{flex:20;background:var(--coral)}
+.tl-note{margin-top:10px;font-size:14px;color:var(--muted)}
+
+section{margin-top:56px;scroll-margin-top:72px}
+.sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.sh h2{font-size:clamp(26px,4vw,34px)}
+.sh .pill{font-size:13px;font-weight:700;border-radius:999px;padding:3px 12px}
+.sh p{flex-basis:100%;color:var(--muted)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;counter-reset:s}
+.steps li{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 52px;position:relative;min-width:0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--sky);color:#fff;font-weight:700;font-size:14px;display:grid;place-items:center}
+.steps{padding:0;margin:0}
+.ic{background:var(--sky-soft);color:var(--sky);padding:1px 6px;border-radius:6px;font-size:.9em}
+
+/* code */
+pre.code{background:var(--code-bg);color:var(--code-ink);border-radius:14px;padding:16px 18px;margin:0;overflow-x:auto;font-size:13.5px;line-height:1.65;tab-size:2}
+.tk-c{color:var(--c-com);font-style:italic}
+.sig .tk-k{color:var(--pink)} .sig .tk-t{color:var(--sky);font-weight:600} .sig .tk-n{color:var(--coral)} .sig .tk-s{color:var(--dart)} .tk-s{color:var(--c-str)} .tk-k{color:var(--c-kw)} .tk-n{color:var(--c-num)} .tk-t{color:var(--c-type)}
+
+/* comparison */
+.tbl{overflow-x:auto;border-radius:16px;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14.5px}
+thead th{font-family:var(--f-display);font-weight:400;font-size:17px;text-align:left;padding:12px 14px;color:#fff}
+thead th:first-child{background:var(--ink);color:var(--bg)}
+thead .kh{background:var(--kotlin)} thead .ch{background:var(--sky)}
+tbody th{text-align:left;font-weight:500;padding:9px 14px;white-space:nowrap}
+tbody td{padding:9px 14px}
+tbody tr+tr th,tbody tr+tr td{border-top:1px solid var(--line)}
+td.ct code{color:var(--sky)} td.kt code{color:var(--kotlin);font-weight:600}
+td code{font-size:13.5px}
+tr.hot{background:var(--sun-soft)}
+.star{color:var(--sun);margin-left:6px}
+.legend{margin-top:10px;font-size:14px;color:var(--muted)}
+.legend span{background:var(--sun-soft);padding:1px 8px;border-radius:6px;color:var(--ink)}
+
+/* concepts */
+.concepts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.concept{background:var(--surface);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:12px;border-top:6px solid var(--cc);min-width:0}
+.concept header{display:flex;gap:10px;align-items:center}
+.cnum{width:32px;height:32px;border-radius:10px;background:var(--cs);color:var(--cc);font-weight:700;display:grid;place-items:center;flex:none}
+.concept h3{font-size:21px}
+.concept p{color:var(--muted);font-size:15px}
+.c0{--cc:var(--sky);--cs:var(--sky-soft)} .c1{--cc:var(--coral);--cs:var(--coral-soft)} .c2{--cc:var(--dart);--cs:var(--dart-soft)}
+.c3{--cc:var(--sun);--cs:var(--sun-soft)} .c4{--cc:var(--kotlin);--cs:var(--kotlin-soft)} .c5{--cc:var(--pink);--cs:var(--pink-soft)}
+
+/* exercises */
+.rule{background:var(--coral-soft);border-radius:14px;padding:12px 16px;font-size:15px;margin-bottom:16px}
+.rule b{color:var(--coral)}
+.exs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.ex{background:var(--surface);border:2px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0;transition:border-color .2s,background .2s}
+.ex.is-done{border-color:var(--dart);background:linear-gradient(var(--dart-soft),var(--surface) 70%)}
+.ex-top{display:flex;gap:12px;align-items:center}
+.exn{font-family:var(--f-display);font-size:28px;color:var(--coral);line-height:1;font-variant-numeric:tabular-nums}
+.ex-title{flex:1;min-width:0}
+.ex h3{font-size:19px}
+.use{font-size:12.5px;color:var(--muted)}
+.lv{display:flex;gap:3px;flex:none}
+.lv i{width:10px;height:10px;border-radius:3px;background:var(--line)}
+.lv i.on{background:var(--sun)}
+pre.sig{margin:0;background:var(--kotlin-soft);color:var(--ink);padding:8px 12px;border-radius:10px;font-size:13px;overflow-x:auto}
+.ex p{font-size:15px}
+.io{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:8px;align-items:stretch}
+.io>div:not(.arrow){background:var(--bg);border-radius:10px;padding:8px 10px;min-width:0}
+.io pre{margin:2px 0 0;font-size:13px;white-space:pre-wrap;word-break:break-word}
+.io pre.out{color:var(--dart);font-weight:600}
+.io-l{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--muted)}
+.arrow{align-self:center;color:var(--coral);font-weight:700}
+.done{display:flex;gap:8px;align-items:center;font-size:14px;font-weight:500;cursor:pointer;margin-top:auto;padding-top:4px}
+input[type=checkbox]{width:18px;height:18px;accent-color:var(--dart);flex:none}
+.data{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.6fr);gap:16px;align-items:center}
+.data p{font-size:15px;color:var(--muted)}
+.tip{margin-top:14px;font-size:15px;background:var(--sun-soft);border-radius:12px;padding:10px 14px}
+
+/* checklist */
+.checks{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.checks label{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;font-size:15px;height:100%}
+.checks input{margin-top:4px}
+.checks input:checked+span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--dart)}
+
+/* homework */
+.hws{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.hw{background:var(--surface);border-radius:16px;padding:16px;border:2px dashed var(--kotlin);display:flex;flex-direction:column;gap:10px;min-width:0}
+.hwn{align-self:flex-start;font-size:12.5px;font-weight:700;background:var(--kotlin);color:#fff;border-radius:999px;padding:2px 10px}
+.hw p{font-size:14.5px}
+.hio{color:var(--muted)} .hio b{color:var(--ink);font-weight:700;margin-right:4px} .hio code{color:var(--kotlin);font-size:13px}
+
+/* skeleton cards */
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.kcard{background:var(--surface);border:2px solid var(--sun);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.kcard h3{font-size:18px}
+.kcard pre.code{font-size:12.5px;padding:12px 14px}
+
+footer{margin-top:56px;font-size:13px;color:var(--muted);text-align:center}
+
+@media (max-width:760px){
+  .hero,.concepts,.exs,.checks,.hws,.data,.cards{grid-template-columns:minmax(0,1fr)}
+  .tl{flex-wrap:wrap} .tl div{flex-basis:50%!important}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+.exs.one{grid-template-columns:minmax(0,1fr)}
+.pts{flex:none;font-size:12px;font-weight:700;color:var(--coral);background:var(--coral-soft);border-radius:999px;padding:2px 10px;max-width:45%;text-align:center}
+.see{background:var(--bg);border-radius:10px;padding:8px 12px;font-size:14.5px}
+.see b{font-size:11.5px;letter-spacing:.06em;color:var(--muted);margin-right:6px}
+.ex pre.code{font-size:13px}
+.see code,.ex p code,.steps code,.tl-note code,.note code,.tip code{overflow-wrap:anywhere}
+.file{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);margin-bottom:-4px}
+.note{margin-top:14px;font-size:15px;background:var(--sky-soft);border-radius:12px;padding:10px 14px}
+.scorebar{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.scorebar span{font-size:13px;font-weight:700;background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 12px}
+.scorebar span b{color:var(--coral)}
+.tl .t5{background:var(--pink)}
+table.plain{min-width:520px}
+table.plain thead th{background:var(--ink);color:var(--bg)}
+
+.sheet{display:grid;gap:14px}
+.sgrp{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.sgrp h3{font-size:18px;display:flex;justify-content:space-between;gap:8px}
+.sgrp h3 small{font-family:var(--f-body);font-size:13px;color:var(--muted)}
+.sgrp ul{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.sgrp label{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;cursor:pointer}
+.sgrp label b{margin-left:auto;flex:none;color:var(--coral);font-variant-numeric:tabular-nums}
+.sgrp input{margin-top:3px}
+.total{position:sticky;bottom:12px;margin-top:16px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 18px;display:flex;justify-content:space-between;align-items:center;font-size:18px;font-family:var(--f-display)}
+.total b{font-size:26px;color:var(--sun);font-variant-numeric:tabular-nums}
+.total button{font:inherit;font-size:14px;background:transparent;color:var(--bg);border:1px solid var(--bg);border-radius:999px;padding:4px 12px;cursor:pointer}
+.spec{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;gap:10px}
+.spec h3{font-size:19px}
+.spec ol,.spec ul{margin:0;padding-left:22px;display:grid;gap:4px;font-size:15px}
+.chg{background:var(--sun-soft);border-radius:14px;padding:12px 16px}
+.chg ol{margin:6px 0 0;padding-left:22px;display:grid;gap:4px}
+
+.goals{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.goals li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px 10px 40px;position:relative;font-size:15.5px}
+.goals li::before{content:"✓";position:absolute;left:14px;top:9px;color:var(--dart);font-weight:700}
+.doc{display:grid;gap:18px}
+.dsec{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;display:grid;gap:12px;min-width:0}
+.dsec h3{font-size:21px;display:flex;gap:10px;align-items:center}
+.dsec h3 .dn{flex:none;width:30px;height:30px;border-radius:9px;background:var(--kotlin-soft);color:var(--kotlin);display:grid;place-items:center;font-size:15px;font-family:var(--f-body);font-weight:700}
+.dsec p,.dsec li{font-size:15.5px}
+.dsec ul,.dsec ol{margin:0;padding-left:22px;display:grid;gap:4px}
+.dsec code:not(pre code),.ex p code,.goals code,.call code,td code{background:var(--bg);border-radius:5px;padding:0 5px;font-size:.92em;overflow-wrap:anywhere}
+.side{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.side .lab{font-size:12px;font-weight:700;letter-spacing:.06em;margin-bottom:4px}
+.side .cs .lab{color:var(--sky)} .side .kt .lab{color:var(--kotlin)}
+.call{border-radius:14px;padding:12px 16px;font-size:15px;display:grid;gap:6px}
+.call b.t{font-size:13px;letter-spacing:.06em}
+.call.warn{background:var(--coral-soft)} .call.warn b.t{color:var(--coral)}
+.call.tip{background:var(--sun-soft)} .call.tip b.t{color:var(--ink)}
+.call.note{background:var(--sky-soft)} .call.note b.t{color:var(--sky)}
+.out{background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:8px 12px;font-family:var(--f-mono);font-size:13px;white-space:pre-wrap}
+.out::before{content:"執行結果";display:block;font-family:var(--f-body);font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em}
+table.pit{min-width:560px}
+table.pit thead th{background:var(--coral);color:#fff}
+.coach{background:var(--surface);border:2px dashed var(--kotlin);border-radius:18px;padding:18px 20px}
+.coach form{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.coach input[type=password]{font:inherit;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-width:0;flex:1 1 180px}
+.coach button{font:inherit;font-weight:700;padding:8px 18px;border-radius:999px;border:0;background:var(--kotlin);color:#fff;cursor:pointer}
+.coach .msg{font-size:14px;color:var(--coral)}
+.coach .body{display:grid;gap:14px}
+.coach .body h3{font-size:19px}
+.coach .lock{font-size:14px;color:var(--muted);margin-bottom:10px}
+.coach .bar2{display:flex;justify-content:flex-end}
+.coach .bar2 button{background:transparent;color:var(--muted);border:1px solid var(--line);font-weight:500;font-size:13px;padding:4px 12px}
+.pager{display:flex;justify-content:space-between;gap:10px;margin-top:40px;flex-wrap:wrap}
+.pager a{flex:1 1 200px;text-decoration:none;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 16px;color:var(--ink);font-size:15px}
+.pager a small{display:block;color:var(--muted);font-size:12px}
+.pager a.nx{text-align:right}
+.home{font-size:14px;text-decoration:none}
+@media (max-width:720px){.side{grid-template-columns:minmax(0,1fr)}}
+</style>
+<style>td,th,#coachBody p,#coachBody li{overflow-wrap:anywhere}#coachBody{min-width:0}</style></head><body>
+<nav class="bar" aria-label="章節"><div class="in">
+  <a class="home" href="index.html">目錄</a><a href="#goals">目標</a><a href="#learn">觀念</a><a href="#follow">跟著做</a><a href="#pit">常見錯誤</a><a href="#practice">練習</a><a href="#sum">重點</a><a href="#coach">教練</a>
+  <span class="prog" id="prog">完成 0</span>
+</div></nav>
+
+<div class="wrap">
+<header class="hero">
+  <div>
+    <span class="eyebrow"><b>第 49 堂</b>GyroQuiz：選答與完成</span>
+    <h1>答對與<span class="d">結束</span></h1>
+    <p class="lead">把 choose 拆成「停留滿 3 秒判斷對錯」和「依 phase 等待後換題」兩段：答對顯示綠框 2 秒，再進下一題或結算頁。完成後答題頁就是最終版本。</p>
+  </div>
+  <div class="swap" aria-label="今天學會"><div class="ln k"><span class="tag">答對</span><span>Phase.CORRECT</span></div><div class="ln sk"><span class="tag">分支</span><span>when (phase)</span></div><div class="ln co"><span class="tag">結束</span><span>onFinish(GameResult)</span></div></div>
+</header>
+
+<div class="timeline">
+  <h2>這堂的 50 分鐘</h2>
+  <div class="tl"><div class="t1" style="flex:5"><b>複習</b><small>0–5 分</small></div><div class="t2" style="flex:15"><b>觀念</b><small>5–20 分</small></div><div class="t3" style="flex:20"><b>跟著做</b><small>20–40 分</small></div><div class="t4" style="flex:10"><b>練習</b><small>40–50 分</small></div></div>
+  <p class="tl-note">複習：Phase 有哪三種？WRONG 之後怎麼回到 PLAYING？</p>
+</div>
+
+<section id="goals">
+  <div class="sh"><h2>學習目標</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">這堂結束時</span>
+  <p></p></div>
+  <ul class="goals"><li>會用 when 處理狀態機的每個狀態</li><li>做出答對綠框 2 秒</li><li>把換題與結束搬進 CORRECT</li><li>完成整個 GyroQuiz</li></ul>
+</section><section id="learn">
+  <div class="sh"><h2>觀念講解</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">慢慢讀</span>
+  <p></p></div>
+  <div class="doc"><article class="dsec"><h3><span class="dn">1</span>題本要求（答對）</h3><ul><li>選到正確選項：該選項顯示<b>綠色外框 2 秒</b>，這 2 秒內不能選。</li><li>2 秒後進下一題（選項換顏色）。</li><li>第 10 題答對後進入結算頁。</li></ul></article><article class="dsec"><h3><span class="dn">2</span>把 choose 拆掉</h3><p>第 29 堂的 choose 一次做完「判斷 + 換題」。現在答對要先等 2 秒，所以拆成兩段：</p><ol><li><b>停留滿 3 秒</b>：只判斷對錯、設定 marked 和 phase。</li><li><b>phase 改變後</b>：WRONG 等 5 秒、CORRECT 等 2 秒再換題或結束。</li></ol><div class="file">停留計時（最終版）</div><pre class="code"><code data-lang="kotlin">LaunchedEffect(hovered, phase, index) {
+    dwell = 0f
+    if (phase != Phase.PLAYING || hovered &lt; 0) return@LaunchedEffect
+    val start = System.currentTimeMillis()
+    while (dwell &lt; 1f) {
+        delay(16)
+        dwell = dwellProgress(System.currentTimeMillis() - start)
+    }
+    marked = hovered
+    if (hovered == q.answerIndex) {
+        phase = Phase.CORRECT
+    } else {
+        wrongIds.add(q.qid)
+        Toast.makeText(context, "選擇錯誤", Toast.LENGTH_SHORT).show()
+        phase = Phase.WRONG
+    }
+}</code></pre><p>原本的 <code>fun choose</code> 已經沒有人呼叫，可以刪掉。它的「換題 / 結束」程式搬到下面。</p></article><article class="dsec"><h3><span class="dn">3</span>when 處理三種狀態</h3><div class="file">選完之後（最終版）</div><pre class="code"><code data-lang="kotlin">LaunchedEffect(phase, index) {
+    when (phase) {
+        Phase.WRONG -&gt; {
+            val start = System.currentTimeMillis()
+            while (true) {
+                val passed = System.currentTimeMillis() - start
+                lock = 1f - dwellProgress(passed, 5000)
+                if (passed &gt;= 5000) break
+                delay(16)
+            }
+            marked = -1
+            phase = Phase.PLAYING
+        }
+        Phase.CORRECT -&gt; {
+            delay(2000)                          // 綠框顯示 2 秒
+            marked = -1
+            if (index == questions.lastIndex) {
+                onFinish(
+                    GameResult(
+                        correct = questions.size - wrongIds.size,
+                        wrong = wrongIds.size,
+                        durationSec = (elapsedMs / 1000).toInt(),
+                        endMillis = System.currentTimeMillis()
+                    )
+                )
+            } else {
+                colors = nextColorIndexes(OptionPalette.size, colors)
+                index++
+                phase = Phase.PLAYING
+            }
+        }
+        Phase.PLAYING -&gt; {}
+    }
+}</code></pre><ul><li><code>when (phase)</code> 像 C# 的 switch，把三種狀態都列出來，一眼看懂。</li><li>CORRECT：delay(2000) 讓綠框顯示 2 秒 → 清 marked → 最後一題就 onFinish，否則換色、index++、回到 PLAYING。</li><li><code>Phase.PLAYING -&gt; {}</code>：什麼都不做。when 當成敘述用時可以省略，但寫出來比較完整。</li></ul><div class="call note"><b class="t">補充</b><div>綠框怎麼出現的？上一堂的 borderColor 已經寫好：phase 不是 WRONG 就是綠色。marked = hovered 之後就自動出現，不用改畫面程式。</div></div></article><article class="dsec"><h3><span class="dn">4</span>換題時 index 改變會發生什麼</h3><p>index++ 後，兩個 LaunchedEffect 的 key 都包含 index，所以都會重新開始；停留計時 dwell 歸零，從新的一題重新計算。游標位置不變（沒有自動校正），這符合題本。</p></article><article class="dsec"><h3><span class="dn">5</span>完整的 QuizScreen</h3><p>到這裡答題頁已經是最終版本，對照下面的完整程式檢查自己的檔案：</p><div class="file">QuizScreen.kt（最終版）</div><pre class="code"><code data-lang="kotlin">enum class Phase { PLAYING, WRONG, CORRECT }
+
+val OptionPalette = listOf(
+    Color(0xFFEF9A9A), Color(0xFF90CAF9), Color(0xFFA5D6A7), Color(0xFFFFE082),
+    Color(0xFFCE93D8), Color(0xFF80CBC4), Color(0xFFFFAB91), Color(0xFFB0BEC5)
+)
+
+const val PX_PER_RAD = 800f      // 傾斜 1 弧度（約 57 度）游標移動 800 px
+const val CURSOR_RADIUS = 36f    // 游標半徑 px
+
+@Composable
+fun QuizScreen(
+    allQuestions: List&lt;Question&gt;,
+    onExit: () -&gt; Unit,
+    onFinish: (GameResult) -&gt; Unit
+) {
+    val context = LocalContext.current
+    val questions = remember { allQuestions.shuffled().take(10) }
+    var index by remember { mutableIntStateOf(0) }
+    val q = questions[index]
+    var colors by remember { mutableStateOf(nextColorIndexes(OptionPalette.size, null)) }
+    val wrongIds = remember { mutableSetOf&lt;String&gt;() }
+    var showExit by remember { mutableStateOf(false) }
+
+    // ---------- 計時：進背景暫停 ----------
+    var elapsedMs by remember { mutableLongStateOf(0L) }
+    var resumed by remember { mutableStateOf(true) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event -&gt;
+            if (event == Lifecycle.Event.ON_RESUME) resumed = true
+            if (event == Lifecycle.Event.ON_PAUSE) resumed = false
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+    LaunchedEffect(resumed) {
+        if (!resumed) return@LaunchedEffect
+        var last = System.currentTimeMillis()
+        while (true) {
+            delay(100)
+            val now = System.currentTimeMillis()
+            elapsedMs += now - last
+            last = now
+        }
+    }
+
+    // ---------- 陀螺儀：角速度積分成角度 ----------
+    var angleX by remember { mutableFloatStateOf(0f) }
+    var angleY by remember { mutableFloatStateOf(0f) }
+    var baseX by remember { mutableFloatStateOf(0f) }
+    var baseY by remember { mutableFloatStateOf(0f) }
+    DisposableEffect(Unit) {
+        val sm = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val gyro = sm.getDefaultSensor(Sensor.TYPE_GYROSCOPE)
+        var lastNs = 0L
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(e: SensorEvent) {
+                if (lastNs != 0L) {
+                    val dt = (e.timestamp - lastNs) / 1_000_000_000f
+                    angleX = integrate(angleX, e.values[0], dt)
+                    angleY = integrate(angleY, e.values[1], dt)
+                }
+                lastNs = e.timestamp
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        sm.registerListener(listener, gyro, SensorManager.SENSOR_DELAY_GAME)
+        onDispose { sm.unregisterListener(listener) }
+    }
+
+    // ---------- 選項位置與游標 ----------
+    val rects = remember { mutableStateListOf&lt;FloatArray?&gt;(null, null, null, null) }
+    var originX by remember { mutableFloatStateOf(0f) }
+    var originY by remember { mutableFloatStateOf(0f) }
+    val ready = rects.all { it != null }
+    val left = if (ready) rects.minOf { it!![0] } else 0f
+    val top = if (ready) rects.minOf { it!![1] } else 0f
+    val right = if (ready) rects.maxOf { it!![2] } else 0f
+    val bottom = if (ready) rects.maxOf { it!![3] } else 0f
+    val cursorX = clamp(
+        cursorPos((left + right) / 2, angleY, baseY, PX_PER_RAD),
+        left + CURSOR_RADIUS, right - CURSOR_RADIUS
+    )
+    val cursorY = clamp(
+        cursorPos((top + bottom) / 2, angleX, baseX, PX_PER_RAD),
+        top + CURSOR_RADIUS, bottom - CURSOR_RADIUS
+    )
+    val hovered = if (ready) hitIndex(cursorX, cursorY, rects.map { it!! }) else -1
+
+    // ---------- 停留選答與答對答錯狀態 ----------
+    var phase by remember { mutableStateOf(Phase.PLAYING) }
+    var marked by remember { mutableIntStateOf(-1) }       // 顯示紅框或綠框的選項
+    var dwell by remember { mutableFloatStateOf(0f) }      // 停留進度 0～1
+    var lock by remember { mutableFloatStateOf(0f) }       // 鎖定剩餘 1～0
+
+    LaunchedEffect(hovered, phase, index) {
+        dwell = 0f
+        if (phase != Phase.PLAYING || hovered &lt; 0) return@LaunchedEffect
+        val start = System.currentTimeMillis()
+        while (dwell &lt; 1f) {
+            delay(16)
+            dwell = dwellProgress(System.currentTimeMillis() - start)
+        }
+        marked = hovered
+        if (hovered == q.answerIndex) {
+            phase = Phase.CORRECT
+        } else {
+            wrongIds.add(q.qid)
+            Toast.makeText(context, "選擇錯誤", Toast.LENGTH_SHORT).show()
+            phase = Phase.WRONG
+        }
+    }
+
+    LaunchedEffect(phase, index) {
+        when (phase) {
+            Phase.WRONG -&gt; {
+                val start = System.currentTimeMillis()
+                while (true) {
+                    val passed = System.currentTimeMillis() - start
+                    lock = 1f - dwellProgress(passed, 5000)
+                    if (passed &gt;= 5000) break
+                    delay(16)
+                }
+                marked = -1
+                phase = Phase.PLAYING
+            }
+            Phase.CORRECT -&gt; {
+                delay(2000)
+                marked = -1
+                if (index == questions.lastIndex) {
+                    onFinish(
+                        GameResult(
+                            correct = questions.size - wrongIds.size,
+                            wrong = wrongIds.size,
+                            durationSec = (elapsedMs / 1000).toInt(),
+                            endMillis = System.currentTimeMillis()
+                        )
+                    )
+                } else {
+                    colors = nextColorIndexes(OptionPalette.size, colors)
+                    index++
+                    phase = Phase.PLAYING
+                }
+            }
+            Phase.PLAYING -&gt; {}
+        }
+    }
+
+    BackHandler { showExit = true }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .onGloballyPositioned {
+                originX = it.positionInRoot().x
+                originY = it.positionInRoot().y
+            }
+            .pointerInput(Unit) {
+                detectTapGestures(onDoubleTap = {
+                    // 雙擊校正：以現在的角度為新的基準，游標回到中心
+                    baseX = angleX
+                    baseY = angleY
+                })
+            }
+    ) {
+        Column(Modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(onClick = { showExit = true }) { Text("‹ 返回", fontSize = 18.sp) }
+                Text("${index + 1}/${questions.size}", fontSize = 20.sp)
+                Spacer(Modifier.weight(1f))
+                Text(formatClock((elapsedMs / 1000).toInt()), fontSize = 20.sp)
+                Spacer(Modifier.padding(8.dp))
+            }
+            LinearProgressIndicator(
+                progress = { (index + 1) / questions.size.toFloat() },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+            )
+            Text(
+                q.question,
+                fontSize = 22.sp,
+                modifier = Modifier.fillMaxWidth().padding(24.dp),
+                textAlign = TextAlign.Center
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth().weight(1f).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                for (row in 0..1) {
+                    Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        for (col in 0..1) {
+                            val i = row * 2 + col
+                            val borderColor = if (phase == Phase.WRONG) Color.Red else Color(0xFF2E7D32)
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .fillMaxSize()
+                                    .background(OptionPalette[colors[i]], RoundedCornerShape(16.dp))
+                                    .then(
+                                        if (marked == i) Modifier.border(6.dp, borderColor, RoundedCornerShape(16.dp))
+                                        else Modifier
+                                    )
+                                    .onGloballyPositioned {
+                                        val b = it.boundsInRoot()
+                                        val r = floatArrayOf(b.left, b.top, b.right, b.bottom)
+                                        if (rects[i]?.contentEquals(r) != true) rects[i] = r
+                                    }
+                                    .padding(12.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(q.options[i], fontSize = 20.sp, textAlign = TextAlign.Center)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // 游標與圓形進度條畫在最上層
+        Canvas(Modifier.fillMaxSize()) {
+            if (!ready) return@Canvas
+            val c = Offset(cursorX - originX, cursorY - originY)
+            drawCircle(Color(0xFF37474F), radius = CURSOR_RADIUS * 0.6f, center = c)
+            val ringSize = Size(CURSOR_RADIUS * 2, CURSOR_RADIUS * 2)
+            val ringTopLeft = Offset(c.x - CURSOR_RADIUS, c.y - CURSOR_RADIUS)
+            if (phase == Phase.WRONG) {
+                drawArc(Color.Red, -90f, 360f * lock, false, ringTopLeft, ringSize, style = Stroke(8f))
+            } else if (dwell &gt; 0f) {
+                drawArc(Color(0xFF1565C0), -90f, 360f * dwell, false, ringTopLeft, ringSize, style = Stroke(8f))
+            }
+        }
+    }
+
+    if (showExit) {
+        AlertDialog(
+            onDismissRequest = { showExit = false },
+            title = { Text("確認退出") },
+            text = { Text("確定要退出答題嗎？本局不會保存。") },
+            confirmButton = { TextButton(onClick = onExit) { Text("退出") } },
+            dismissButton = { TextButton(onClick = { showExit = false }) { Text("取消") } }
+        )
+    }
+}</code></pre></article></div>
+</section><section id="follow">
+  <div class="sh"><h2>跟著做</h2><span class="pill" style="background:var(--coral-soft);color:var(--coral)">一步一步</span>
+  <p>每一步做完都執行一次，確認結果和講義一樣再往下。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>改停留計時</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>照講義：選滿後 marked = hovered，答對 phase = CORRECT。刪除 fun choose。</p>
+<label class="done"><input type="checkbox" id="ex1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>when 三種狀態</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>把第二個 LaunchedEffect 改成 when 版本，加入 CORRECT 分支。</p>
+<label class="done"><input type="checkbox" id="ex2"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="3">
+<div class="ex-top"><span class="exn">03</span><div class="ex-title"><h3>答對測試</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>選對一題。</p><div class="see"><b>完成後</b>綠框 2 秒，期間不能選；之後換題、換色、綠框消失。</div>
+<label class="done"><input type="checkbox" id="ex3"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="4">
+<div class="ex-top"><span class="exn">04</span><div class="ex-title"><h3>完整一局</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>全程只用傾斜玩完 10 題，故意錯 2 題。</p><div class="see"><b>完成後</b>結算頁答對 8、錯誤 2；遊玩紀錄多一筆。</div>
+<label class="done"><input type="checkbox" id="ex4"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="5">
+<div class="ex-top"><span class="exn">05</span><div class="ex-title"><h3>對照最終版</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>用講義的完整 QuizScreen 逐段比對。</p>
+<label class="done"><input type="checkbox" id="ex5"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="pit">
+  <div class="sh"><h2>常見錯誤</h2><span class="pill" style="background:var(--sun-soft);color:var(--ink)">先看過</span>
+  <p>遇到問題先對照這張表。</p></div>
+  <div class="tbl"><table class="pit"><thead><tr><th>現象</th><th>原因</th><th>怎麼修</th></tr></thead><tbody><tr><td>答對立刻換題沒有綠框</td><td>CORRECT 分支沒有 delay(2000)</td><td>先 delay 再換題</td></tr><tr><td>綠框留到下一題</td><td>換題前沒有 marked = -1</td><td>清掉 marked</td></tr><tr><td>第 10 題後沒進結算</td><td>onFinish 寫在 PLAYING 分支</td><td>放在 CORRECT 分支的 lastIndex 判斷</td></tr><tr><td>換題後馬上被選</td><td>phase 沒回 PLAYING 或 key 少 index</td><td>確認兩個 key</td></tr><tr><td>choose 紅字 unused</td><td>已不需要</td><td>刪除</td></tr></tbody></table></div>
+</section><section id="practice">
+  <div class="sh"><h2>小練習</h2><span class="pill" style="background:var(--dart-soft);color:var(--dart)">自己寫</span>
+  <p>先自己寫，寫完再請教練對答案。</p></div>
+  <div class="exs one"><article class="ex" data-ex="1">
+<div class="ex-top"><span class="exn">01</span><div class="ex-title"><h3>完整驗收</h3><span class="use"></span></div><span class="lv" aria-label="難度 2 / 3"><i class="on"></i><i class="on"></i><i class=""></i></span></div>
+<p>照第 51 堂的驗收表，自己逐項打勾。</p>
+<label class="done"><input type="checkbox" id="pr1"> 做完並確認結果，完成</label>
+</article><article class="ex" data-ex="2">
+<div class="ex-top"><span class="exn">02</span><div class="ex-title"><h3>調整時間</h3><span class="use"></span></div><span class="lv" aria-label="難度 1 / 3"><i class="on"></i><i class=""></i><i class=""></i></span></div>
+<p>如果題本改成「答對顯示 1 秒、答錯鎖定 3 秒」，你要改哪幾個數字？</p>
+<label class="done"><input type="checkbox" id="pr2"> 做完並確認結果，完成</label>
+</article></div>
+</section><section id="sum">
+  <div class="sh"><h2>重點整理</h2><span class="pill" style="background:var(--sky-soft);color:var(--sky)">帶回家</span>
+  <p></p></div>
+  <div class="cards"><article class="kcard"><h3>拆成兩段</h3><pre class="code"><code data-lang="text">停留滿 → 判斷、設 phase
+phase 改變 → 等待、換題</code></pre></article><article class="kcard"><h3>when</h3><pre class="code"><code data-lang="kotlin">when (phase) {
+  WRONG -&gt; … ; CORRECT -&gt; … ; PLAYING -&gt; {} }</code></pre></article><article class="kcard"><h3>答對</h3><pre class="code"><code data-lang="kotlin">delay(2000); marked = -1
+最後一題 onFinish 否則 index++</code></pre></article></div>
+</section><section id="coach">
+  <div class="sh"><h2>教練解答</h2><span class="pill" style="background:var(--kotlin-soft);color:var(--kotlin)">需要密碼</span>
+  <p></p></div>
+  <div class="coach" id="coachBox">
+<p class="lock">🔒 教練解答（需要密碼）。解開後同一個分頁的其他堂也會自動解開，關閉分頁就會鎖回去。</p>
+<form id="coachForm"><input type="password" id="coachPw" placeholder="輸入教練密碼" autocomplete="current-password" aria-label="教練密碼"><button type="submit">解鎖</button><span class="msg" id="coachMsg"></span></form>
+<div class="body" id="coachBody" hidden></div>
+<script type="application/octet-stream" id="coachData">bODxOipafDawvFp/EpoBaA==.VSg0Y3BwfLOz6zzs.uCxFWtBK/msQHs5hid7dL9XF9jFQ1H05cmGRLtOIBF4iWiUrhqgF9WRUV7mysXNNHHADmYffmZBDLoY/N0gOSkIVVGCoVTvYASVdJoTrZgAhyClnz4SHL1fBQ+jZY674B00nK+plDQCYnXJmQF77O8rsAOnZrFT+l/Ak4V58DtbC/No4b31zI4UePIuZG6MQXWn6FxVVcjw4KLfomkvKxEjIt7Yy3JaB4P6lZo5uyLnpFdpwI2xqZAV+INnyRKdXrrSzWcxW9mNeAcgXXRYlKPo5hTzLNOo+AbRwyb6UmAlHIBX+TI8DWGKP1Iw1rwoNtfV+a1AZFlFuxGIr7ilaSDaweJAW/rVGIfANw8ePJa7GNcEYU6F+yGh89r7kIMTW5NEQ/7hsmz19PiOo9C4WsYnnfqcXUHqkV8ChhnvUeeFhC7Ym6Y89hBi4Jgv8aY8P4A8SBfCwmvOgMHIVil296b3uxVAZGa8lD7S4BWZOb1IyslV9gZJkFuLR56XBdyoIRbGAxBP6YD/Oks27tJRhCUcbGDLi9nh8HDRn+JuhG6NYPJXDwX3UBLzUMCffuIgOM960uppXOnR4nOkf0UVShnyamHvkJXvbJjAGWttz9lbXeAcXgk63KSKQ6aEBwxHA6MRhOv4lkzmZow1eraR9AngHyUMM5LwKTWGI2EWDRgovN44MUPo+V/GiSwd8ZhHopnNLMXdzV3fsITC8aA1rw4BYHaMdkcqdiLOWDbz7lk8cvmddOWIaG72620Cu6YccQHwzdPKMG/jRghptq4wbPXAcKL3oiARxUj5jyIe3JOsM2LB03jnnUmN5meNRunoVVOGDz7NkKXDSUFGUXbjbCA2G14kSr5MFEWYBtevFGSUelf/KdZsYoGbSmhSQifbFGxfrMKqETxENk5Qa+/gACiBuI9ol7S5bXqqeSN9Qf10i5cg7ZnacjCsZk9niYDiUAMwJc8jKL/ywQhq7Rm42SbQi0ffdJEbhen0vDn93jJ/atipmDA5DcNYf8sz9VRS/A/vcLZMUrgKmwat7ku0uhK0lfU+U4eUqE2sdpY15g9X302U4A6PmvOtBv7Ac/SmVOnwoYBWLW+kFWs+Q/B1ClxTTRBgbZ469sR5vuRXq/4E+/IRaSECNrm1M0ATt83qOhjk3U8R6KoxbEPFdu21q0Iz8XbJAZtdxLOH9qpaqgwp9ICBc6GM2o7JKaxDwxvdwcjmSET3UTZ8EpByyQ/wXw4o8wh59s6eFxaf+pD1UWZ4kNTmGJ5jhtaYm0Zw90pio1uUn6huABOij3QxBrwnueRlGqR1/oveQ1YPkEqzFo+/oWs7RZAGnP09FRs9ZJrAc8xUe5k+YNNxKHuVC6098zGP16mUlOkdx9fmYTGlzLbW0w0dFktrFM32S9dJVXcpFPQY7fLLbkNF7UMQPQAwKdF1vKFeLsf2WIMKVVVbdtPczKSOd72AjmgOuXFUiXQH45+qpJY1qz21NZkYB0kFCKyvCIbjMzYnVwjFkXHxuJ70qSSzmmLglLgIui5SIwHNcnOXdNHLVJ1S7xZ77hhOgJKsdONZp6Oo9UuxsA3xp9hPGq+7AKVR3Fv5uiPkC+296xTRtfIY5ZRkzg3O7RmCnfNzUF+j+BKEI9KrW6A/wHb23wYcp4/hEaTMa8b3053imNAbdbqjdsi2U3P+JCOwv97OEruyksrjPD0DMc7vf0fRc2Uj0pnJ8lD/2huQjIzOAejzMeeOFUJ3988xvR9t7M1R6vvxK8ANCrqVIj9GwYR/K2rdhfrx65Q++78GwGQal3hrcwRbUIroOt7mI0+lnEpoIdR7MzzGv2LbYgZR+57X7exxgnQEHuMjP1gepmvWRy1w7VMQ9fv+pI/oR5PytjOy34ztSwO35YU4xhkGDhKvR4TnSF4LqsA5Eg4QiNKwHoXA9eHuosk4GmsyZYRV5QoaSEJaC0b8Hf/LdOuyvE+xGiRL5Zy+UFny6+vViu/H2QLJf+yKfJ+rhUI5xc+716DlI4Yc0+4XzxhpMEng2WGeb7Yk1+oum2nxIdfAYopP8u2wddA8PRb6Be5mbCFcqxxcED/3feIxQmNihiOQqIWioE2ySUmfJEpT+e/59KhVvFxjWIwClOyPhvvEu/PHvb563wUrVHVO0Y57j2Yr28aGLUtOSsDmtC5REPCfDVlSe0BCN8YSfbr6Is8nyuss/dJviaHJPVXk7X63EgQH3SykBYiRJ92Jvf3fnGWbEf+5XQI+J1fXSYGLd+OlDuM3cIjlKAAF4h/KRin0OGsKsHeqaBp/kc5V4UbQHcQZmRX7tt9Y49SDKH2djF9F75Fv8pG4UfYuV3f5y3IEC1h7yYTST8DoOK3ct51PS2PGopfrlvhCkrjefq6SzB9DOHyCq9CMSWLov2ckhiZxWMd3ponJJYg/ScneBm2fAA9I5rFie0ftHOTeQpBnOMRlJqLFteRV0z7Q7eYjemwUbcinxigKbfd0vY0jikasMPfu7fdfcaC8vauazuGtrRUY8JV1yK516Hw7VO8tdTEKdM4pRkjS1+muVIN0eGpTkjXj4hqLtOVTk8ua9nLEqL5cEuUfhNf+1pOl9BftaR9Tum4gNJPSqr2VOApBu3VAk9/YvcbHotkti46K6Y1EnjtzOT9nxBiw0C94tjlxgR9Q1VrV/wNmlmAggkjn6Q6dhuWcQrxh5Ok6w16Rw8wzI4PEMI/7RRYn88zi9IBHlVBej/vgK52/ZNrRny0AqXfnnJer0bUhIO+MWVZk0IpjSCIvXV/3GHMLwW+DZO78y6YUX6JxNo7mYbxf9mzbs9otHkjcykv0bnL8vScEEr062srcr/Q780OBYZ1cNLqZbrZtEA3HebCVUNxt7XE8bzpBTbM/R911rtKRLVFdMAhBQDETFVvTpLWk1qk9LAgQxRepFQhRvLhLjxg6TxfMg5hjNPTkPc84drLs+OpGo0SEg7fcVfukrdrrvagcmW1BoAUGB6JrlRL7qpsKZOSykqx/88NYEL1U5ZWMAtdDg8by8woW2WCBx84GfGgohXM0ST8hjCMQt2qYDY3E4fgwJ6F1Axh9oEfn4EVGQF5JuBiAqQiriEBiNfWseviWZlrneVsEhnpTjsKZf632o3QsqFWa6s9VOpMIl3rNwIj2KmgMh+gGSPgphFzerIRyrRhDZV3xqxVV8F+IAe/emFxHIj2YciuyQvCPXMAst4/5ghqw7zcQ8FIJo7LpX7BpnPxAdP6sPwbfrgaEB0pH8i7yqmhm/XDNKpoEJwMdMSbv/nITGDC/5esK9XEVt7xhZO+AML2Ujs7hcd/UeQKMBPlNZcjo5/Y1pmUH3A3wzutW30fWck6YChexoWAHrqR28w4LkInx0eZ7OQL6a7UySO/DJj7Av9HxFyzR1EIjVVUf+eomPz8E7eOqDghVc72+nEZezekS1AqJrXudM6EQ+CWh3V/twMA1mah7s0hEDUxw0KJIz4ZWfCycOsXG27ZLB3b4pCM5B+RVi4RRnBY4cCqWRiiVDwUPpcYx5WBwGXqTeySF0Ido6yZNgWS9CkKMvi7t8qSDeSQz/5te6eVaTqVKKCTz1ZMwMNx3eaXbVf9H1BqxoJn/fy/egpgh8CcqqsQ6wE+u5cnGVKJnUB00G3FUyf4BbqE1U7hIH3eGLGS7ujLbKO8Z44oHVPv6XaZ9gXVyzj/hSxRY0zh8BAt4csqmQopQL7snWuw1cnhoDw0z9ESqbHoUn+1XTuUW9QRvWNSJzlSCynqp6UX/FMlmWl8dRvVHdo2gjwh2BxnFrY6SsJY1wBT7X+7DC0+aHefpN1ju1rENAmltj8S0XEzxekDKhyWslSm34VF2Vd0UQolGzc6LdZKR0IyIHNH5YsQsfFmW49V1EzF3Zv0pBiexyrIY0zTOOC1vs+ELzbgtTlNwc1pzsEDj3yU9jKmW+Dvd/KH2gqf7HlPmzqKbxDZYRFI1HuKstNH0rSR5hrSXFnjXjm1dIWDxnJ4TTjFfTc8K3mxNqe07AenuUBO4AWSt7RZ1OU/X0gSTXmMRN9RDKZhcFBlybzpkh88gpRUqHy6Cksi2Zjt0CyDjaTvxuKMWLjnpxUAULvTJLXRBcSKMhqesnp84I5nPHwoHdZ4GfEyzliaxVx68eTKzVH+eXRmFSvWBaf9e+sLLhLVUOLZF2FmvOvH8XkZDyuKHiM8RmK4Sp7IU1ZLHpLhEyZDic77kot/wReon8LcJYcpZ7fKT40DJ2lNt1DimBObeesd5XKHPnK/0RWPzm+uTCSRtlaFgZKK73Oe11ZF39k8Saaabtw88uZakQdPqojk79tGG1a5VllhAhoo7aIYtyJ5DLWgRo6EmSX8lwBV3g1qkKt7krJ47sW4OYRbE4yfm/zTBQHu+JM/EASA2WH/0HY12S/dovnIYgi63bsivcHceZ/K9yA45TZ9fqffROJ/n1p00DCvmyWOiV5Zg/RLFraNMpxD1DuXT+PLg+/tywHSgolJvBC3oHPA0b3l7CYpTxj37z7Zw9kKQXhKMeNPX65nGtpOhAuyrgX0iF2WTC0Eo4urCHFGCZ2tnSfMxFctUqoMsDIXVZCfQomDiQ1II3j41+h/b+X5imSPp8r98toDOiu8/R1++zOB9LKaTAJBjignwQtPpOHaWEfez1atwyL8gJB+KzNymSS7DCU/eP0m/1+OjsHrDghcv4CYhj64pyQiIc6NLSlgpnM64QUFylh5R9dDrR3DVzKjiRi9zHy+3Vk0evjCesr8WQ0ZO9VfsOqHAyZ1eX6PhvvWfqyC6F0NrLe/l0UcCS3bNRJ2Yugpx7pNx0zyr2q2ifd11LyUN/FUWiMyrk+wE2KI3z5uPGI8tXijp+weviCQrzpKDEpuA6AGqWNelvbmpXtFUkSILeXJcXflE94oyAYt8CKG+QCUzB9G0YQ+ltl5nWJChjBKvv6YPwLkVNsjs001pS0mshQcO8QOiGF+FYPC1bKaV4WoLasSczJNFWmfTrLPDlLpCYeAA4VuFqiMhq5kmIJnHKbQMmEu8skIVqqNAUlv+IjPnHpSNkauri/AY9wHly9cPHicdrsVup8hfa3mY226o7iEtXuuy+T1H2emTUv8i0LJV5xCZQjT5d1mz0F71HUbUt67DjAgBfD7NeV1y493M4g19TuOnoUe5bWqSPG3qsQIfmVI9OqBs1aWO3TRccq8b5Z5tZuHGg20sz4POWBdahvB35t6V/kL04CEwvpVyZb0HpgAEl+oZgFDKkFfU/SPfdj5LEVCvhK7sdyncIwwhRB6pKTViaYh80mE0FhJwP8SsFxqLGUWxY1iAkVf50CYzgQ1oqAbafPOkXW9uDEjPDv9JexzuMGcHY28QmXvcrSUctkghCwzs9mEWW3nR9wbO1AaMA8BLy9vTzoTS6gOtoVRXrXoam43P+u+ZS+PMXQXLoK53O5CkghgjKSQpPDWSHdMOaZu/0FwqL2eVQymGY5VbJWQyW+MbAycEgTvNBXrkHTd0P5IydaeNUlT7xopESXfTq7KEETihCQFhWAOYGAl8VWtskFvE0oE+OxHTjBaZl4Avh1ATj8nBTrsi6XYrc3BK0iTPuhR9tqADOY8QzfZDsBqyjCHmkB8UaCPRzCDFnvlc/pBnXCTWrR7GmNXqbpMehHtZS38IV1Zf65be+AxgVupeJn7B28gjm1PUdGRbBwAmFxZAfuC58RBTHvFoBOdO6mez8VDVZjF+55nEEaT7uV6Q8SLvutl4qioEJX4x6Scvq8uGkItEdYlJFO5RyreofF1ucmCJxgbG09qHSYR/2gARU6r0g3Ck7DcuM8H3TYtv41vMCI9x2U0YQQkWKQ2IF9yh4S02nqB2qdXHG1pGtvnPYAFaeajQYrv5CQ6xvimJlBGL++On71C2ZT3OtgFhnMEUqwQYE2XpHnQo40hVuSxs0zaEoFuESJ+D5YwKLLcmfn8Z3pF8kvhwra3g6N3U2Ek0RfGcWHoeLDjmQlCoVrCHlsvsjkUhI29CJlNVreaNuDis61CFMBonQ0jfFzCENzNJP3xeO+P/7M4WgrcZLPmuiEaY0WqYn+SfZ726ezPDEAbvvhbU1nsB/En4YWf3WzCVZj+6Kp8hmu9rVCfxFClO2pB5AfPKfIZF0NA9kv4UM1RpH2yV3y7RU3blbWhbTBiDyjcMKfJCw/iWZ6zbwbtK0nrVXPtXQuRidCY1/gasXDMZKokQzwICwSBbee84wdUJ+a/mHeynSCWVrzUxM7xQauMnhse0+AExrM+uF3n84gIR7lqtpyQ63BEMTwR9tAEvlxNAX/c0SsKPh2wb4dkr6nNizVmy55+P1x9ne8NaLjvJNTlnY8u9Btf9QDjcY4VwB5zsMa4chS2/P2TtOTxbEEutott4nnUQec1Gy//5UD3BYnfOxnUeGFtvTJjfJG45j1yiWJOvBkDPvuRLXK4SRmOGmzYeIQO11UMpmUpQJ0UZ2IaOALq1WZJRGk65xoGU4DQRB8e6M6xupDkp6tCMGSCid6rGcX7qkhTar4vVs6w0Q+VQb9uuJtcX29u5Lev8DHHqJOVBe+Z0kgyCDEhJjvRGjAudsc4KuUjfmcK/piX6j37/+iH5D4ll1hN1nf1XVVe7ZQq2fjXtevIu9NepUCp4tUe3+GPKFDAo+jCg9Ixocf6ozv+Ql3y2B4xNG2z6VyBUjZU/YwRsr+FjSd1uPbSZo498vnvQplLTmi9fcLjE6dF+FcMI9F+cmgCLh44kPb8pYDfa5JYPJzmFmtUIn5cSXZj09X11R5yx6QUIQtltb+2Qq5Y47feRSYc5MOa0TJxBpZwgkNXXwdv5KvWZOYEjmAHKcqo0a6BSnFG5G0nNSJGUbiEpaFyP5df/nAKhfzHO7VXYz/4ki36/M3Ds4+Fx3RCC5aj0UeR0KKpVUuINJvEGJ82eSPhXeUwKGf0QysrrFa5nfIMjfHBFZBEm+RHYk5EEtpkXBbBqR/KjLJKvVBxy8t7PkQ727aAyEm1V2JlYRe1AvYyzdXfSvp7LFvVZhQ1nhOyLw82JwVlwKIdpMgnyuyW99hj65lcf/8v2F9L0skw03TauEsMawcylQrhZw2dRK9eDWUV1vvqtJr8hxvp6LQdG0ov9h1RdAt3HsPwZH0Z4NP6WlakAzOkxdroYGBRWiYGj5s/BWahRxydyctkrtPPszGd2q5ZzGEOtdHh+a7fdRwv24AsOKJcZ2yC2vt0L4atMpd2BD/cdmu4nOU9jCtesX1Q38cl8kRNhNOoy2ZbLfjeJU+H/4jbJu3eKTaKhIV3CgDipXUDwihvdMB9o8S9bENFDm7or5NR3UJLoIZjFr6EBeS3Kt2QwAnE/BrLUxnf1T4a2QclAaBtgvuoKAnuAW548s8Y4V+89vNY4d5Ut+MBH7YwTD1tkasJljFmfCk9X30P/j/CEfeITF9VhtX5aBOyeX1QN/W40UZbI96TXyAUUIL1Vgeev6j3+Nrw2y3Hv9U4KveChgPHtON84GQsR5eH5wkpr7mkRK7tdDuCSnk/DVcu9mYZXMW4FIqfLguDrK9iPQx4aA/bkawsAxqFtQAGCn95VoTgCHm6QdjVubQIFiV1oGi2IqVP4uow61T3gGCvC1MkjxUn614rJf555GpJ5WXiA99ZbzXK+EsFExnwDYXphCPSXYiC79uPB1xI4jejfCj8Epn5smfMfIp81Re9tM1SZ/1BCLyMeVjtUNfUDOmtng5ovA4ahRUzffNxUiB2W5QhKkCE56tp9ykNGakvdRhmgNjxsfmyWslwdogqplRGc54jm8drqCRnz4jMRK0xNPj8NNMNQvz99gh0+dQURY208UvC0+K0a0S7Q5ZTO9Z70U1heNffGz/YWWVUqG1Zz0pGkW6VPpGwh4ix0x0kVyREpyHvJBwiinEECo7lwIIMYINNEbywV4ChbXr1nqnm9FBG19hnawVI1k4erI1gFBWTiv4vUkYcSxL3dVb/fN7HNNJyuJVNDVzMbhpZ2LQ0fgnCijVeKxoPe70ctcsVcrEl5FfBD/H8q93v0FZa3E4sdKCShRhcicDjTpEjPU6ET1pW626hlwvWxYEz9ERptI1Oda24dvOfpK/tnN6791l4Xf8t3vAd3+HrchyXYSLqlTeLhWnZaYXJtaOKivpylqxIWskVxhYrSILS/PRIfb4IwtsOwrGF/7ennBd3bt4PvzK8xwWVk4DbnQnWyuIqUme+Oaj3qn6Dk/0ejHFU6/w3n94dYMAJyPsMdXW9U8U4++CP1lKErLb0RnW6Bs8/x7AkfV7opful4X6iuHj9iY97F6mXWGwjqmlGckLguxkvCImANRRehPMvLMde6LJfbkRof8NOrx3/rl8S5sHn2Z7MgZcymRIZ0NzJ7dRvQ+rvUQF7854AfczTJ71EtrArjSbH+dxLdXKIhOp0+SzYPC5fdPrqKCteFldq9a2MigvjOOv/fmXFGMzhIWwf1tD3/gHS+I+HTj0qlmyR31D2HCCHoL+jiGvcnEsplPDN/ntHNBALafuq8y5UdOAmm0P6ed1PWrVlIunSuQIN3VBtbg7oEbkBKgqn5vbdxGcUdgMIweklimjxMoGArPijR/l7zKVq4JJh3QK+wqh1ulo+0+7wp9oHRVIh9gx/iLV8BUTv8zs1EfukKbzHh0ikCjHN2vkQwInHuPVNidhAJDrixhdpLnjYAJesc7AnYHHW1jV3nx6BLIz3RKPotXrhoQl6sY5WhojFLh535SnXnS3Lww+9H2ktjmErxOrzr0TRpyoI9hdNdsOwR/enuc0jO0stHiOGyu5b9Lk6WQ5qXDoOHZ2rhvwBaF1U9mOs1O+o8ToXpKAs1aKGsvwjxICtP+MSeu4SwrxwBZ8who5UVesPos2EmHbnbnrdXrP6sq7TBFw3+y/DPUa4dAjOi1Q97aXsbOrCkcZTrvGQ/gNI3BioUZlIBGe2FuSc8qCF8BFwPO0vT7Ey7cAFyzyvP/vs6O1gLmpmQu+JuRl39aLbQ7sMLF3g4zzehL/3q6P8SZE9uzxr/quPTnQeDAAZh89shohy8RXksKAPqJsTBgwAEP93o2NyT3UxM0txhGkt3Not9AwrKFcwUPLufon708hFAMs6uWa3YpbJT/cVxo4ADwvQklGOOZuMyKCWH4w+XIxpNAeN6oGxHDgWEi4HcbV7uRD28/AOhskHmBxjks02UCib7ZTFfZ7TCrNqLv80lonAjoSu2ONW/NbyqI8VT+KYlJxS1Z9b+77lTjJElGo0jzySlei7mncpM0u2Maqtt/DWvrdBtg2BZwbcUHea2lWXEX76BjIN/48c4HaxfNabRXg4tgaX/9aRNKRaG9RtlhrlBIAOlXofw4VOKRTNrf5eAeFG+Y/CJ0sJ8O7UEAL2jxBtcXdMIRi/992peO+KDxpTaHsQxPAjTdL5fqwj0b7P0jYNemAnZGDm0wzNWXo+JLwWbXYN9qxkNEEIpOF/FNiLo2r9NSD4B/zRP0Ap7QqAtKX1E5gyJTXALd+ba1kMa3edJCQW1I8Dxy8feX5MFgQw4yf5MZr3j52hEumB/3GsE1WO0dORGVkeJKIkHDsKKF9QrrzHP58oZkWhF1yH41R8GYVij4oTeNHDlPuyxc5sJK62+WxAqUKGaXurEZZbtG2odpwPQBSk5MxxkB0fI7dMacFYrp4TjkmkVu43vKgPM/j601jMvo67N61RQkAomjxsm6rFCQPW4Bq0MS4gweeGDZ2+vQfYUfGsVz3y0f0zQ7b785JDhwYmo5kPFFlC9jNwx0U/mzz3HZNclRPg/pNCZwLZA3UCX96fn3S0k7zxOXEWVO1o7WBWX0UDZp8EG924zw/4LTxX0bkkcjJC5HgkF6YSnHwXcLPqg/LdV47QEFZ9U09yPdz7WAf8Oa+4CllBwNGMMwquMl4XCpZakskng+67TSrk1P4Q2szUx2txnLpX8QvXzlAFpXaOTkRVu4HWENu6Aw4EdUrQPUrWrq87S5kKY57SvUbm4lcy53AjRYpwGeZ6V7zGYKAty2Kxo7QiV7YF5X2NrjodrPQ44BVVd/3pGDwTM6yqlP++LdJjm+tAWQTDMDCoK2T3pI1VBhv9XcpadCwxb+a8A9u+7Y4QZ8zC3L6EadqvERk5KknnkGnyUBKRleL79LNNEJxMf6uhDZmTjICQIRL4jV4c6FkZHVoA4IKeYlgWlLZuHfKkX2TZm3Tz5F887NxcJ5e+TvsKel7LvzoBXIybpXChTJo0ciWqY7E9era81NtMBYsVx+jR6rCV3nJHTvFwn0dXAj/z84Rzvnrx+fPN5d98ipL9pAARJGGgeALmYNtvbD/Y/PXbfZpQJnuEJZf4bxxQqxmfQWMiEEAj6iFYgcESc+wGBZfO+cJ/Zv36PHZla2Dqb8cOVVl+W3zu8e1pqGKBLUNhDTRt8aJt2f/5MrXxwml5tnPyf4ZTalJPGtBqHbgKALlyVygoQ3yDEoGT5iSZ7GS+Ud+ln4R+7QcYf+8qUZXWztY5hLFfNFp9g/yxl3LDDTLHzb9axrfK+TRQ1swXkOm5jMVzHqDcAUSnkQIhvpPnOI+cykfZA09H0mOKp8B0JrKiuh9z8sNTaNSP2uN48u+F7Yh2dusvUMCb2AxHkD4JHO3XG2BSyDCB6AjDLpovcOkYlMMLL/2muPWxBedznFIZxyujRd2WgLYZO0dahutN8sP5BWgN8avMfu5hLtrD45v8KM+Sw6q/inYM0RUk77XNDjm1AfLSXXD7xfwzUA3GgiftqR0QwC94RE9x9ZP272k80x5C/bLQIsrE2FjrClBELdzF4w2+ptFxj65YZThryMv/yCaaHwi6mePifXZBAW3Ceu0R2ZcErkrFfeLTSIP8aQPAEkugMy5XoQXFfzte5bHh5tVWGb58If1dJC3qQN4z+eS9cBLoiNDW9mqaFgx+mafl5mwqvzGM/domgKtOBSUwZb/zob9zJHCbG5l7wthBR9pLML9tM21FeJa8uvKl/UuXpX2OYUfdbaLVsXtbDV6xDecJ7jSWbYB+VOXQKvs2j+tf/HJGnr91lj5gekCXs8W9pZkh6yMpUv7VilvamneJHFOiPzspq/s6Pdp1mL8kL3gn8sHZvwyjYrXz9TpxoFQuBwWsNa/pYtAyD9BMDhMTBSYn+UZnL5L+/SbQkTb8KnXbXyDh0kmPh0dn0xrM3YL9dD0cgQSVIrMCTY9AUDXZDZU5ULYQELS1T3zrrAcBlXqgWw8cjGLsAAhyNbs6SOGkDwSQw/3C1QRhjLwENjCZZODJr0ZVVokbxNrKdheWUmVRUk/IQsfqUKEFQ+mC1DzmY1n6eUgMXSL8jaLdjQ+eS6Xo2hjXgO0JjQNbGLt7OFtLk3kWxwhfQVUM5ozSpDzRKqrs2XIGRhYmqypzXUE9HCMzb34OpKdK8YuvUCvYvUUoaQE416XXDmq4scuDYx1tJOJgzVgY7No2aTfxHhHzo0mGaOFBzhj/ZI8Yd6MSHvqfDS68oBwPDLWF74wS2ESZfVkTN9jOS28ohwJYKRVclwSFfzHeIgIuB9hGz9bkzLu+MVKZMaU6qdqPFlOmsvo225HduwPruzCaqI7JB3Jyr6LXooc1bxgKyMxbBWhUuPtgP90lsWoi8sAVqOCMQ6wgedwSJFgR9toIm+6QFa8j9fdYkXKO8ys25DRz8btyWoSyO5Gyf37kfe5ZN5Uw2/8oAqHidkBkry01XGlWJJ/4Bu5fJKUI5WDPCSKsujx+Tf6temC++Z28WphtMfdK0EiE8pksFm26t9SNnOpnrq+75YbA83Ia7ODehhUlELP1AC+1NphelKsvoMGsiVVs6dk+jQZPx8K8B/9dCORy9LqEijLl9S0YoDIK7KkIAvbI8daflaUKhczZXQwn03DYUSl4sxT6/EDL/uGcUEl9IdXwFvXe71vDVepWhEqqpafT4Wm6fy25L0KpdzCdW+9dWtqsBvoHyNc7IjdIQNtxcL7d500iCulTx3/ZBrahwrrtYcTsEkmrroCI+wGMRQC0Jl2EqbqJ29ly47Fl3c+YRW199AVu/VdwZENkGbLzVCnoD2Bi/Gy7wKOV8Q4SEzWTinQlaxPf1+eFBBVKqXWDstOsXXJGPmwk1sYwFDR+q4lRnl5lRB8GGDFYFbap1tP/AgjbytWlarca7ZoqoqC+hvVIGoWwD81ItWyMUM2YlSDYBqd6EGRKDVv/M8RtJPDF7+yi9pdxblm4Nc95cYbGoyhwy4nDyrmMx8OnKAiv4/51zN990ilGLrKd43JsJv2qL1DlXXiXA8E8dds9q3uMFBUYn49JPQrlaBlso5JAAtObhMT8VKlKZ4SgJ8HhYhJsMHpleajB49bi5v2Yt/Tjlxoh2Bui9Ey7GoUQM5EbeItVNyHvBTNj7L9r+aJfaxMMLObwTsMD+KgxdHZzswZvxSTIDleLdb5itKFnTQYKs2QJEnysi7HCyIsMMc7Cxa7Zznmnjm8h8VCc9+Lp8DJX7Cs5bm8Nw5nBNJWy0hgEc6GeuV1+BXjw9ikGZTlGsJmykeUNF+yGSvRlp1iGU6fPRHL6qm0puPUmbeUUmKXT4NZvhBMkjCK5cCumocBoJE9JFs2LZVKdOpJEMh1qvzyD06hfw79I6WnSfMFTWb84EYKn2smFY1tly9F/eWstYA+xRFCulejMqupEXKj707JYsNFvVpwUAxZu/KlgyIHqM5j+Ke0rknUlCyJZ0Ik3KC9Q0ntwfucQqMRD2O5NZ63VzBKr3qTSDak15pTlX4PkRXATOWTU5570luGqR+/bDDY6H2EJddZMkGOkIWEyl9TTfOVPWExnpdx3M1dBKZnn2FraAInO6n0ydAZ3WbVBWu0aFMBSLR4JPfYqr2phxKS9YiFZwWdeM2sb8MEkPuo3hrKN4znliacy1vVYgCxn2SF9d/+Xc/qLLFIURP3lBFO5ffUcfKqRcrMcsP743UYv4ucdvGuIkO3gltBwaGPrq2sPw9MVYSIACoit2JSkE9GkuORsXvG+MywG2cj2ntY1E98KntJE0zyAfdVR+dYZ4jSejy7gfln6A3+Yh1xXi0KBMFmAx/nMl7SRxWEwo+8yS+w2tYjmr1kKD6pmvouDALwiE/DZXMSrvNnNg+EQbmwmpfpTACfpRQ55C8EyIfnRebxcDbSXq6kWgGFEtoD/qIXmHc5ekH5+sgtchg27Mkze61J2Js4yIKNnZYNAWBdHosiIq2z+R/Zdv2X8D9eGfd0rde+JfFJrh2qvvrsl8DIgbuwQzBUBmC6VJh7kBv70WseR4+P3EzIgiQ2WhZSVmjf2E2esBp09aid0glu7GJ4k5uSBa0PS5GPmSeIwGcLznIB3Y1pobtaVf4etZZIBAiVpG+O3ZBnIKNtzg7krKRk8xcSaGFnUzJJHowVxExJz4ydllENrgvLGF002FC4zzdswujHCrSRefzNARMlbWMN5oUEDAftB+3E65A3P68QEJLzGWwOQuikwF4JbtncJUElcc22jrGHR9nlWup+4zJiw8zF8fxk1kk6uhu1rgjslXEolT9Y9YU/56aqAIeNOSXX9bsrUY/sbibw2B8APOX+zbWNRu8ZP4H59jpP1yyWG+lmcGqzhhaXMMRFYpxorL92sRxGgJSYGoqQmjxRmly+ejQRQ7yafjHlE3ew0uPG7N61YKUuHQYI75uuGaoeo3up7F4o9r5vdVtI8rn07F8Svagch3wtO2hZYzT+xUyMSn52q1/OyI75HfZvckgZ2EHCTgoQ225B8XV+8137Ve3Ww6f4bCackiui+X7xKtz39gxd3sLNLKClbrl42XcA19T0x4uxhKS0mQKkRWnPPRL0iJV4pfsPoXcsLubYHJdmyEMoN9k56zzNb1KNkgzGLdpjlUGLKYq/lt8T54y+rkYqWVC3LRMXjQe13Gyhl5LEDpplISC/ouvQ8t7+qTubYItgv7qOQFpv/yE5ZnwHCRE7XhoCdhMfF5DsaDhG4XCBH2XAQnQYvY4TkcIffdbLMZv2pDEasYbdGA4hzi2ixp3rDWXxOoB+nom421u5mhV1hbJCq7ntmOEZ6ZBwgTxDHVv16t2Lfyz9FcSMw+E7fJJvYrFR1ExDgn+M49SNBQ+ZYcA4MtNtst7MZsy+Nlwn3OIBjaftEiK7a8rqThElvL04dBxj8qKJloQISGvkZU/vtABAOUau7Nr7+ZkmLid2UdNeHsTAN00TMYAz8kFSN6k0KZQhDeK1fNGrsMYukJOpGnxSVpyYeKwFayP6FJNEQG2+Pg7nGE5QgaPHRgauoiUv4+iN6xS5winROz2zqB0ODfvOoUyoTTS/lz/VGTjxdEysRyh+dpFnkNYIKR0820pkADvFuBqn899SjL4d8yymQwrqgWu3kl0UQN7qAr3Z0uu1aVJiWJs5nBgh1ne3Hxfv7BXAff1k/AIjZ0bQvb0z/A30ZUlCkBWndJKgLEU+j8USeoh0ONue2U1B7mryW5b4U5EYszT2z3QLjFzRkxkANJUKHutotKY2MwhC7amLO0WZdsRoOtjBgi+KRweO4ydbVYpYo5+gAl8MwEDmxGg3m4gbfO6BfQI4L+qbXJ4h7lgiwL2sh1qi+l6CG7JYHpaZmtIyfnygnNBYp1nmR+MwrQvnPTRJlBWcMjvz6802T59AnclRNET19IcacaowHeVQjT0oRAQ4ek9pjyRPDgY3E9AHIhry8sN3g2UFjwpuJgw5ke0CxIBeQJLA5fs8CcMCs0dfMHzKYwKWcHfoMwn5JQV6jLEbwys4KMKmD/GZHRgg7LhlmGvhzvWhu759iCTNP1QhlB1AW335xwE+V/FnYb5D0L9x6S2r4XAOYB9YYNsF4Me0IVnZcKbKeWwWUZScAtim3zNLhxE7XgfNdCtzLPQ8xEALsR7S+Bu7ynSBVO/iYA4eBjEn7EYPgM2t6EV5+tPcrD2WevwZid/bucSScMsm9gEX648ifvLwYOaRlBb0uzSVZr8+hCYO2VmKyvArKxu8raMi2i8vfNsDS1zuj21ODr/E0oOS4TNUD5RAYGlyk/VE6a05qBCMj/lUhTp7FAROnsWZr68FV9laIbRBsO+ftLeZdbBIs5klSkCLegfvtOzjy+orgKTekZnx/xkJIvNy+sdq0jyYXgF5UjYIyfDQGDrntcBPF/wcezi+jfbM1J39pZLLPvQ1r0hro2UAluEtutZwhPaBugXhRJYzJmYqY3V6F6slp9LhCRZxTmljdLSLFLedUqv4rQ7lSYgPC0nyHyyTxAwT6UQs9/66LNiF3wGot93Y/zraQtGhFOf6BQ8YPNzd07ZKEV66wB9pOXdpbhuOD+0eloaaZlIs63RA+SrRjP4HkwFf8iwuopQkMPOqlyeV7QE3U1PgdsrK1XJ1eTVQXtL+nQrUywGBPbb9ua/zaGL/MUuaG6U4neIMRiJbkGkuPYt/C21RIHiwXInrJcngUv+LP9MA+0XGLjWucB6GFRz+yoXgj4QsOU3n+QdjQODJgJXmSB1xQEOYLzKqXMB5vg0JfmisIW8Ff6/h+iR4fq2XT2pBIWcsZY2orOOFUCrUqlaSeNthGPStd4L/cwWYCj1B/Aa+s+ghS+BPPUsvYYcCkBUk6W+Ndu2RDkQDtuAUiDh/h0J9jJ3ZUPH4+VQ2fMDvBAaPxS9FdhK8S441cA8GTN0K/ENkyOMqJ9aabpeJNDuwfNF7fEcGzMcD3kEAkJNa92Zuh91sGi30xDJCfEc2bep2NYfP4hhAbeUoA2llg7lZlsQS1UVa1XgtPXGHoH0+PsbtF37Aznscx0jCCdVmMlI3PQVq9HNXXwuKcX7s+N+dOs1wot4GAGZRkUeQ3nYUQlN3YmIyYa2XqSSiyhZpon54deVKPXwGtlx8yoaxpmbpnR2hDoD7ZwMVmhZmfCOI4nYWartP6xMF8/jdgP3tBspGwRLOt4WXNkxmx5D4V5Ia2aaN5zbcwmovdZn67RWTIpvdvwJBi+eri5ZOwkWLMZKXVGUz/3B6cWY+Zu0orQUP2SSzulzW/bwDHA/ubGFOVOLfBoWAqRfzVxdcuSAMVxInezgg2jFGcUqppUMaRHz+xEQAW7TRaChi6DOokTTFPF7GapDZ5GiiGnk3WBgc0eydko7Kz6lSE5qNrfgk7QulunLv3c625BFXU0BQ95HJZJcVGVewNTkRnwMJHjWYXP4wb9YULuQ3MR/uvd0yPjDWLODDLDno4YQ//fNyMWd+wIesyUGkrvWN5ZYna7kjbtnX/Azepgja5HPza3oTQLJIOFuyE4Q09t3p6EgutusNtfwOdPFDSS+Pux8YnWWmFJ2QK2UD+YSV7VQLkpWHO/ERw226NKAYd4B/5teQEqTwmjAYYHX5IUBA9pKtIx6fEJZc/vpJHqNXyz4Wx7s4DZLpnMlIiUjYPZ5x5xK221PPCCRpXEJrtkEsieQ3xxKvfyavehnXeOIuEhlewSknSt/A4U98cTgeC0ZyDH6hQZnn2EsrBCYMI2sLfe2PfQCGVJczLCqS/ob/4xa57oYo+V1TFbLE8gN7q1xC0Ynxv2b4uUaonZ6xRW4y2IlYZRBZcsFYCM0Fm1BrKmHBsWMCzuA9IEEdXwZalt7fTLKLHbOga84x1Ob4X+ERgeV7H1YtgUQDGlbSY3w/ewnOSuRt6Z/2dq7C0IyNlNeicIsaMJVHxnhAsq19AC9kLMgtFQkaZT1enbEV+3hvnToJB4yDjr5ePBImYSPpfdqPWbDihH0emVe/QQZDqQ6blHpifLCOryYFa3zLii9nUjfcxR6k7vZhVFz2o1KV0md+ZALQH8NMYOwSG5q6UPdiW2Kxv3K4qX22LDXa32VsvYtDQA3ZaDxHvdpa8ryOKXqD6H+b3JQwabf2gljcrj10bAZVs2pHz7EGPQJoNaYhPKVcXtmh//XeSfKQgi0FnIdv/OcoPmWZkX/0X8ZVkoTmGMASiOqmHaeIPHGEwuG5FRKBcVeyr8J+riaSO7rW4WWL2nWGW3hL402E2uUa7npe1m0pNVazCrhhY5x1Ue/kADki6b6aYzGYrjKU1CpsYxqDvO3TTuL4TCKDnGYcsHu4l967phK+fv4G9iGC3TMskwUlW8RF7eGPz97mISxqK3Zuvi6B8N+ttfNHgdkyrlBnmEfnDpSDphmzOg5WsbrYG59zY5Xaf7B6idSVfOPivMNgclb4zjuiDEbDCuZUMyC5H8dt1x3UNqvwuED9p1ooN6Hn+ry9GHtvZ7bys7rSw3MLRX1wb7BgVZGBSrzhxuLEn8/xnIGWODRh6fyweQyPzzhs6Abrc/TAVwqictlZvpLFjNpmlT0Pn1MDJU8kCsTLQEfT4TyTY8cTJSvta+2KvBifRKQbPc9IU8rKhjnucwR5aGRY6j3lZF5hz+y/kZoAkO7XAPxSJE6NeeAlcVYzlwZvfxPk+TtsRqPyFmD/2nKkrnOoDCgD4bf/MnYwjpm4kSOHGybgkmpJfbPi0a+GaGJCO2wbSU0WKopyQJ3LxZWkS7z4ZUut4nJeEfYmWD/rrbA3nNy/01PPIWCdw1bCUppF/7dL/9AORws93H9gufbx6QruPzYqQ+a4zPuZ+F3cGuHiCLOKuvXc2Fz7FJIGTaE5RqtWIueBlw67wWI4fOkTj2JwM1ToPV6mwDldZawbEuampmIjPtPLREpklha2F3gZnlgRKpd+LEJcCfetkDyK4S8nYmZInTuopPVU/vlUCRE29PeD3jMd6Fr0nNiaUtZOlnPCz+nl2PZYAvDwSE2wBh145xqcgDPuy8lE6UyJPkFuDprvCopQyNbeRbc1XHBIeIs++6Whg==</script>
+</div>
+</section>
+
+<div class="pager"><a href="lesson48.html"><small>上一堂</small>第 48 堂 答錯狀態</a><a class="nx" href="lesson50.html"><small>下一堂</small>第 50 堂 匯出 APK 與交件</a></div>
+<footer>Android Compose 入門・第 49 堂 / 共 51 堂</footer>
+</div>
+
+<script>
+(function(){
+  var KW=/^(fun|val|var|return|if|else|when|for|in|until|downTo|step|while|do|repeat|class|data|enum|object|true|false|null|is|as|import|package|override|private|set|get|const|it|by|super|this|try|catch|finally|throw|break|continue|lateinit|vararg)$/;
+  var CS=/^(int|float|double|bool|string|char|void|var|new|return|if|else|switch|case|default|for|foreach|in|while|do|class|struct|public|private|static|using|namespace|true|false|null|this|break|continue|const|enum|out|ref|readonly)$/;
+  var TY=/^(Int|Long|Float|Double|Boolean|String|Char|Unit|List|MutableList|Array|IntArray|Map|Set|Pair|Any|Modifier|Color|Composable|Screen|Phase|Question|GameResult|RecordDb|Context|Bundle|Offset|Size|Console|Math|Random)$/;
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+  var re=/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|<!--[\s\S]*?-->)|("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)')|(@?[A-Za-z_]\w*)|(\b\d+(?:\.\d+)?[fL]?\b)/g;
+  function hl(root){
+    root.querySelectorAll('code[data-lang]').forEach(function(el){
+      if(el.getAttribute('data-done'))return; el.setAttribute('data-done','1');
+      var lang=el.getAttribute('data-lang');
+      var src=el.textContent,out='',last=0,m;
+      re.lastIndex=0;
+      while((m=re.exec(src))){
+        out+=esc(src.slice(last,m.index));
+        var t=m[0],cls='';
+        if(m[1])cls='c';else if(m[2])cls='s';else if(m[4])cls='n';
+        else if(m[3]&&(lang==='kotlin'||lang==='csharp')){var w=t.replace('@','');if(t.charAt(0)==='@')cls='t';else if((lang==='kotlin'?KW:CS).test(w))cls='k';else if(TY.test(w))cls='t';}
+        out+=cls?'<span class="tk-'+cls+'">'+esc(t)+'</span>':esc(t);
+        last=re.lastIndex;
+      }
+      out+=esc(src.slice(last));el.innerHTML=out;
+    });
+  }
+  hl(document);
+  var KEY='asc-l49-progress';
+  var state={};
+  try{state=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){state={};}
+  function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+  var prog=document.getElementById('prog');
+  var cardsEl=document.querySelectorAll('.ex');
+  function refresh(){
+    var n=0;
+    cardsEl.forEach(function(card){var cb=card.querySelector('input');var on=cb.checked;card.classList.toggle('is-done',on);if(on)n++;});
+    if(prog){if(!cardsEl.length)prog.style.display='none';else prog.textContent='完成 '+n+' / '+cardsEl.length;}
+  }
+  document.querySelectorAll('input[type=checkbox]:not(.sc)').forEach(function(cb){
+    if(state[cb.id])cb.checked=true;
+    cb.addEventListener('change',function(){state[cb.id]=cb.checked;save();refresh();});
+  });
+  refresh();
+  // ---------- 教練解答 ----------
+  var data=document.getElementById('coachData'); if(!data) return;
+  var form=document.getElementById('coachForm'), pw=document.getElementById('coachPw'), msg=document.getElementById('coachMsg'), body=document.getElementById('coachBody');
+  function b64(s){var bin=atob(s),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function unlock(p,quiet){
+    if(!(window.crypto&&crypto.subtle)){msg.textContent='這個瀏覽器不支援解密，請用 Chrome 或 Edge 開啟';return;}
+    var parts=data.textContent.trim().split('.');
+    var enc=new TextEncoder();
+    crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveKey']).then(function(base){
+      return crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(parts[0]),iterations:150000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+    }).then(function(key){
+      return crypto.subtle.decrypt({name:'AES-GCM',iv:b64(parts[1])},key,b64(parts[2]));
+    }).then(function(buf){
+      body.innerHTML='<div class="bar2"><button type="button" id="coachLock">鎖回去</button></div>'+new TextDecoder().decode(buf);
+      body.hidden=false; form.hidden=true; msg.textContent='';
+      document.querySelector('#coachBox .lock').textContent='🔓 教練解答';
+      try{sessionStorage.setItem('asc-coach',p);}catch(e){}
+      hl(body);
+      document.getElementById('coachLock').addEventListener('click',function(){try{sessionStorage.removeItem('asc-coach');}catch(e){}location.reload();});
+    }).catch(function(){ if(!quiet) msg.textContent='密碼錯誤'; });
+  }
+  form.addEventListener('submit',function(e){e.preventDefault();unlock(pw.value,false);});
+  try{var saved=sessionStorage.getItem('asc-coach'); if(saved) unlock(saved,true);}catch(e){}
+})();
+</script>
+
+</body></html>
